@@ -11,6 +11,7 @@ ELSE "ELSE"
 WHILE "WHILE"
 PRINT "PRINT"
 DECL "var"	
+EXPONENT "**"
 
 %%
 {START} {return START;}
@@ -20,6 +21,7 @@ DECL "var"
 {WHILE} {return WHILE;}
 {PRINT} {return PRINT;}
 {DECL} {return DECL;}
+{EXPONENT} {return EXPONENT;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);

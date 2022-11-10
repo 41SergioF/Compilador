@@ -18,4 +18,8 @@ IF (num1 > num2){
 		PRINT(num2)
 	}
 
+var num3
+num3 = 2 ** 5
+PRINT(num3)
+
 END

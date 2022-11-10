@@ -174,6 +174,8 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 		case '/': v = eval(a->l) / eval(a->r); break; /*Operações*/
 		case 'M': v = -eval(a->l); break;				/*Operações, número negativo*/
 	
+		case '^': v = pow(eval(a->l), eval(a->r)); break; //carlos
+
 		case '1': v = (eval(a->l) > eval(a->r))? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
 		case '2': v = (eval(a->l) < eval(a->r))? 1 : 0; break;
 		case '3': v = (eval(a->l) != eval(a->r))? 1 : 0; break;
@@ -255,11 +257,14 @@ void yyerror (char *s){
 %token <str>VARS
 %token START END IF ELSE WHILE PRINT DECL
 %token <fn> CMP
+%token EXPONENT
 
 %right '='
 %left '+' '-'
 %left '*' '/'
 %left CMP
+%left EXPONENT
+
 
 %type <a> exp list stmt prog
 
@@ -319,6 +324,7 @@ exp:
 	|exp CMP exp {$$ = newcmp($2,$1,$3);}		/*Testes condicionais*/
 	|'(' exp ')' {$$ = $2;}
 	|'-' exp %prec NEG {$$ = newast('M',$2,NULL);}
+	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
 	|NUM {$$ = newnum($1);}						/*token de um número*/
 	|VARS {$$ = newValorVal($1);}				/*token de uma variável*/
 
