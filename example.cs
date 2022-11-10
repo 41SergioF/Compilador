@@ -1,3 +1,5 @@
+START
+
 var num1
 var num2
 
@@ -16,4 +18,4 @@ IF (num1 > num2){
 		PRINT(num2)
 	}
 
-FIM
+END

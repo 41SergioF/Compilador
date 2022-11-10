@@ -3,8 +3,9 @@
 %}
 
 NUM [0-9]+\.?[0-9]*
-VARS[a-z]+[0-9]*
-FIM "FIM"
+VARS [a-z]+[0-9]*
+START "START"
+END "END"
 IF "IF"
 ELSE "ELSE"
 WHILE "WHILE"
@@ -12,7 +13,8 @@ PRINT "PRINT"
 DECL "var"	
 
 %%
-{FIM} {return FIM;}
+{START} {return START;}
+{END} {return END;}
 {IF} {return IF;}
 {ELSE} {return ELSE;}
 {WHILE} {return WHILE;}

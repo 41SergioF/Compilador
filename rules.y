@@ -253,7 +253,7 @@ void yyerror (char *s){
 
 %token <flo>NUM
 %token <str>VARS
-%token FIM IF ELSE WHILE PRINT DECL
+%token START END IF ELSE WHILE PRINT DECL
 %token <fn> CMP
 
 %right '='
@@ -267,7 +267,7 @@ void yyerror (char *s){
 
 %%
 
-val: prog FIM
+val: START prog END
 	;
 
 prog: stmt 		{eval($1);}  /*Inicia e execução da árvore de derivação*/
