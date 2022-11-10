@@ -2,6 +2,7 @@
 #include <string.h>
 %}
 
+COMMENT ("---"("\n"|.*)*"---")|#.*
 NUM [0-9]+\.?[0-9]*
 VARS [a-z]+[0-9]*
 START "START"
@@ -43,6 +44,8 @@ EXPONENT "**"
 "==" {yylval.fn = 4; return CMP; }
 ">=" {yylval.fn = 5; return CMP; }
 "<=" {yylval.fn = 6; return CMP; }
+
+{COMMENT} {;}
 
 [\ \n\t]*	{;}
 . {printf("(%s) Ingonrado\n",yytext);}
