@@ -11,8 +11,10 @@ IF "IF"
 ELSE "ELSE"
 WHILE "WHILE"
 PRINT "PRINT"
+PRINTS "PRINTS"
 DECL "var"	
 EXPONENT "**"
+STRING (\".+*\")
 
 %%
 {START} {return START;}
@@ -21,8 +23,10 @@ EXPONENT "**"
 {ELSE} {return ELSE;}
 {WHILE} {return WHILE;}
 {PRINT} {return PRINT;}
+{PRINTS} {return PRINTS;}
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
+{STRING} {return STRING;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);
@@ -32,6 +36,16 @@ EXPONENT "**"
 {NUM} {
 	yylval.flo = atof(yytext);
 	return NUM;
+	}
+
+{STRING} {
+	int i; 
+	for(i = 0; i < strlen(yytext); i++){
+		yytext[i] = yytext[i+1];
+	}
+	yytext[i-2] = '\0';
+	strcpy(yylval.str, yytext);
+	return STRING;
 	}
 
 [-+()=/*^{};] {return *yytext;

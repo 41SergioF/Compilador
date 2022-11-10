@@ -157,6 +157,7 @@ Ast * newValorVal(char s[50]) { 		/*Função que recupera o nome/referência de 
 
 double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	double v; 
+	char v2[200]; 
 	VARI * aux1;
 	if(!a) {
 		printf("internal error, null eval");
@@ -229,6 +230,10 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf ("%.2f\n",v); 
 					break;  /*Função que imprime um valor*/
 		
+		case 's':	strcpy(v2, eval(a->l));		/*Recupera um valor*/
+				printf ("%s\n",v2); 
+				break;  /*Função que imprime um valor*/
+		
 		case 'V': 	l1 = ins(l1,((Varval*)a)->var);
 					break;
 			
@@ -255,7 +260,8 @@ void yyerror (char *s){
 
 %token <flo>NUM
 %token <str>VARS
-%token START END IF ELSE WHILE PRINT DECL
+%token START END IF ELSE WHILE PRINT PRINTS DECL
+%token <string>STRING
 %token <fn> CMP
 %token EXPONENT
 
@@ -302,6 +308,10 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 			$$ = newasgn($1,$3);
 		}
 	| PRINT '(' exp ')'
+		{
+			$$ = newast('P',$3,NULL);
+		}
+	| PRINTS '(' STRING ')'
 		{
 			$$ = newast('P',$3,NULL);
 		}
