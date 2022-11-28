@@ -4,16 +4,18 @@
 #include <math.h>
 #include <string.h>	
 
+char var_work_string[50];
 	
 	typedef struct vars{//estrutura de uma variável
 		char name[50];
 		double valor;
+		char string[200];
 		struct vars * prox;
 	}VARI;
 	
 	
-	//insere uma nova variável na lista de variáveis
-	VARI *ins(VARI*l,char n[]){
+	//insertVarere uma nova variável na lista de variáveis
+	VARI *insertVar(VARI*l,char n[]){
 		VARI*new =(VARI*)malloc(sizeof(VARI));
 		strcpy(new->name,n);
 		new->prox = l;
@@ -21,7 +23,7 @@
 	}
 	
 	//busca uma variável na lista de variáveis
-	VARI *srch(VARI*l,char n[]){
+	VARI *searchVar(VARI*l,char n[]){
 		VARI*aux = l;
 		while(aux != NULL){
 			if(strcmp(n,aux->name)==0)
@@ -32,7 +34,8 @@
 	}
 	
 		
-/*O node type serve para indicar o tipo de nó que está na árvore. Isso serve para a função eval() entender o que realizar naquele nó*/
+/*O node type serve para indicar o tipo de nó que está na árvore. 
+Isso serve para a função eval() entender o que realizar naquele nó*/
 typedef struct ast { /*Estrutura de um nó*/
 	int nodetype;
 	struct ast *l; /*Esquerda*/
@@ -44,10 +47,17 @@ typedef struct numval { /*Estrutura de um número*/
 	double number;
 }Numval;
 
-typedef struct varval { /*Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]*/
+typedef struct strval { /*Estrutura de a string*/
+	int nodetype;
+	char string[50];
+}Strval;
+
+/*Estrutura de um nome de variável, 
+nesse exemplo uma variável é um número no vetor var[26]*/	
+typedef struct VarName {
 	int nodetype;
 	char var[50];
-}Varval;
+}VarName;
 
 typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
 	int nodetype;
@@ -56,7 +66,9 @@ typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
 	Ast *el;		/*else*/
 }Flow;
 
-typedef struct symasgn { /*Estrutura para um nó de atribuição. Para atrubior o valor de v em s*/
+/*Estrutura para um nó de atribuição.
+	Para atrubior o valor de v em s*/
+typedef struct symasgn {  
 	int nodetype;
 	char s[50];
 	Ast *v;
@@ -79,8 +91,8 @@ Ast * newast(int nodetype, Ast *l, Ast *r){ /*Função para criar um nó*/
 	return a;
 }
  
-Ast * newvari(int nodetype, char nome[50]) {			/*Função de que cria uma nova variável*/
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+Ast * newvari(int nodetype, char nome[50]) { /*Função que cria uma nova variável*/
+	VarName *a = (VarName*) malloc(sizeof(VarName));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -90,7 +102,7 @@ Ast * newvari(int nodetype, char nome[50]) {			/*Função de que cria uma nova v
 	return (Ast*)a;
 }
 
-Ast * newnum(double d) {			/*Função de que cria um novo número*/
+Ast * newnum(double d) { /*Função de que cria um novo número*/
 	Numval *a = (Numval*) malloc(sizeof(Numval));
 	if(!a) {
 		printf("out of space");
@@ -99,7 +111,19 @@ Ast * newnum(double d) {			/*Função de que cria um novo número*/
 	a->nodetype = 'K';
 	a->number = d;
 	return (Ast*)a;
-}	
+}
+
+
+Ast * newstring(char str[]) { /*Função de que cria uma nova string*/
+	Strval *a = (Strval*) malloc(sizeof(Strval));
+	if(!a) {
+		printf("out of space");
+		exit(0);
+	}
+	a->nodetype = 's';
+	strcpy(a->string, str);
+	return (Ast*)a;
+}
 	
 Ast * newflow(int nodetype, Ast *cond, Ast *tl, Ast *el){ /*Função que cria um nó de if/else/while*/
 	Flow *a = (Flow*)malloc(sizeof(Flow));
@@ -126,7 +150,7 @@ Ast * newcmp(int cmptype, Ast *l, Ast *r){ /*Função que cria um nó para teste
 	return a;
 }
 
-Ast * newasgn(char s[50], Ast *v) { 		/*Função para um nó de atribuição*/
+Ast * newasgn(char s[50], Ast *v) { /*Função para um nó de atribuição*/
 	Symasgn *a = (Symasgn*)malloc(sizeof(Symasgn));
 	if(!a) {
 		printf("out of space");
@@ -140,9 +164,9 @@ Ast * newasgn(char s[50], Ast *v) { 		/*Função para um nó de atribuição*/
 }
 
 
-Ast * newValorVal(char s[50]) { 		/*Função que recupera o nome/referência de uma variável, neste caso o número*/
+Ast * newValorVal(char s[50]) { /*Função que recupera o nome/referência de uma variável, neste caso o número*/
 	
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	VarName *a = (VarName*) malloc(sizeof(VarName));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -153,11 +177,8 @@ Ast * newValorVal(char s[50]) { 		/*Função que recupera o nome/referência de 
 	
 }
 
-
-
 double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	double v; 
-	char v2[200]; 
 	VARI * aux1;
 	if(!a) {
 		printf("internal error, null eval");
@@ -165,8 +186,11 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	}
 	switch(a->nodetype) {
 		case 'K': v = ((Numval *)a)->number; break; 	/*Recupera um número*/
+		case 's':	strcpy(var_work_string, ((Strval *)a)->string);		/*Recupera um valor*/
+				printf ("%s\n",var_work_string); 
+				break;
 		case 'N': 
-			aux1 = srch(l1,((Varval *)a)->var);
+			aux1 = searchVar(l1,((VarName *)a)->var);
 			v = aux1->valor;
 			break;
 		case '+': v = eval(a->l) + eval(a->r); break;	/*Operações "árv esq   +   árv dir"*/
@@ -187,11 +211,11 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 		case '=':
 			// inicialmente verificar se a variável existe
 			v = eval(((Symasgn *)a)->v); /*Recupera o valor*/
-			aux = srch(l1,((Symasgn *)a)->s);
+			aux = searchVar(l1,((Symasgn *)a)->s);
 
 			if (aux == NULL){
-				l1 = ins(l1,((Symasgn*)a)->s);
-				aux = srch(l1,((Symasgn *)a)->s);
+				l1 = insertVar(l1,((Symasgn*)a)->s);
+				aux = searchVar(l1,((Symasgn *)a)->s);
 
 				//printf ("Variável não declarada: %s\n",((Symasgn *)a)->s);
 			}
@@ -230,11 +254,10 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf ("%.2f\n",v); 
 					break;  /*Função que imprime um valor*/
 		
-		case 's':	strcpy(v2, eval(a->l));		/*Recupera um valor*/
-				printf ("%s\n",v2); 
-				break;  /*Função que imprime um valor*/
+		case 'S': 	printf ("%s",((Strval *)a)->string); 
+					break;  /*Função que imprime um valor*/
 		
-		case 'V': 	l1 = ins(l1,((Varval*)a)->var);
+		case 'V': 	l1 = insertVar(l1,((VarName*)a)->var);
 					break;
 			
 		default: printf("internal error: bad node %c\n", a->nodetype);
@@ -261,7 +284,7 @@ void yyerror (char *s){
 %token <flo>NUM
 %token <str>VARS
 %token START END IF ELSE WHILE PRINT PRINTS DECL
-%token <string>STRING
+%token <str>STRING
 %token <fn> CMP
 %token EXPONENT
 
@@ -313,7 +336,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		}
 	| PRINTS '(' STRING ')'
 		{
-			$$ = newast('P',$3,NULL);
+			$$ = newast('S',$3,NULL);
 		}
 	| DECL VARS
 		{
@@ -336,6 +359,7 @@ exp:
 	|'-' exp %prec NEG {$$ = newast('M',$2,NULL);}
 	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
 	|NUM {$$ = newnum($1);}						/*token de um número*/
+	|STRING {$$ = newstring($1);}
 	|VARS {$$ = newValorVal($1);}				/*token de uma variável*/
 
 	;
