@@ -26,7 +26,6 @@ STRING (\".+*\")
 {PRINTS} {return PRINTS;}
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
-{STRING} {return STRING;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);
@@ -45,11 +44,12 @@ STRING (\".+*\")
 	}
 	yytext[i-2] = '\0';
 	strcpy(yylval.str, yytext);
+	printf("%s .l\n", yytext);
 	return STRING;
 	}
 
 [-+()=/*^{};] {return *yytext;
-			}
+	}
 			
 
 ">" {yylval.fn = 1; return CMP; }

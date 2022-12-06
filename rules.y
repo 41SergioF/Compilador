@@ -120,7 +120,7 @@ Ast * newstring(char str[]) { /*Função de que cria uma nova string*/
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 's';
+	a->nodetype = 'S';
 	strcpy(a->string, str);
 	return (Ast*)a;
 }
@@ -177,8 +177,23 @@ Ast * newValorVal(char s[50]) { /*Função que recupera o nome/referência de um
 	
 }
 
+char* eval2(Ast *a){
+	char *v2;
+	switch(a->nodetype) {
+		
+		case 'S':
+			return ((Strval *)a)->string;
+			break;
+
+		default: printf("internal error: bad node %c\n", a->nodetype);
+				break;
+	}
+	return v2;
+}
+
 double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
-	double v; 
+	double v;
+	char* stringVar;
 	VARI * aux1;
 	if(!a) {
 		printf("internal error, null eval");
@@ -186,7 +201,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	}
 	switch(a->nodetype) {
 		case 'K': v = ((Numval *)a)->number; break; 	/*Recupera um número*/
-		case 's':	strcpy(var_work_string, ((Strval *)a)->string);		/*Recupera um valor*/
+		case 'S': strcpy(var_work_string, ((Strval *)a)->string);		/*Recupera um valor*/
 				printf ("%s\n",var_work_string); 
 				break;
 		case 'N': 
@@ -254,7 +269,8 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf ("%.2f\n",v); 
 					break;  /*Função que imprime um valor*/
 		
-		case 'S': 	printf ("%s",((Strval *)a)->string); 
+		case 'Q': 	stringVar = eval2(a->l);
+					printf("%s", stringVar);
 					break;  /*Função que imprime um valor*/
 		
 		case 'V': 	l1 = insertVar(l1,((VarName*)a)->var);
@@ -296,6 +312,7 @@ void yyerror (char *s){
 
 
 %type <a> exp list stmt prog
+%type <str> exp2
 
 %nonassoc IFX NEG
 
@@ -334,9 +351,9 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		{
 			$$ = newast('P',$3,NULL);
 		}
-	| PRINTS '(' STRING ')'
+	| PRINTS '(' exp2 ')'
 		{
-			$$ = newast('S',$3,NULL);
+			$$ = newast('Q',$3,NULL);
 		}
 	| DECL VARS
 		{
@@ -359,9 +376,11 @@ exp:
 	|'-' exp %prec NEG {$$ = newast('M',$2,NULL);}
 	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
 	|NUM {$$ = newnum($1);}						/*token de um número*/
-	|STRING {$$ = newstring($1);}
 	|VARS {$$ = newValorVal($1);}				/*token de uma variável*/
 
+	;
+
+exp2: STRING {printf("dqwdq\n");/*$$ = newstring($1);*/}
 	;
 
 %%

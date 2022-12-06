@@ -31,7 +31,7 @@ var num3
 num3 = 2 ** 5
 PRINT(num3)
 
-var name
-PRINT("Carlos")
+#var name
+PRINTS("Carlos")
 
 END

@@ -351,8 +351,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 24
-#define YY_END_OF_BUFFER 25
+#define YY_NUM_RULES 23
+#define YY_END_OF_BUFFER 24
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -362,13 +362,13 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[66] =
     {   0,
-       22,   22,   25,   23,   22,   22,   23,   21,   14,   14,
-       14,   12,   16,   14,   15,   11,   11,   11,   11,   11,
-       11,   11,   22,    0,   10,   21,    9,    0,   12,   12,
-       20,   17,   18,   19,   11,   11,   11,   11,    3,   11,
-       11,   11,   11,    0,   12,   11,    2,   11,   11,    8,
-       11,    0,    0,    0,    4,   11,   11,   11,    0,    6,
-        1,    5,   21,    7,    0
+       21,   21,   24,   22,   21,   21,   22,   20,   13,   13,
+       13,   11,   15,   13,   14,   10,   10,   10,   10,   10,
+       10,   10,   21,    0,   12,   20,    9,    0,   11,   11,
+       19,   16,   17,   18,   10,   10,   10,   10,    3,   10,
+       10,   10,   10,    0,   11,   10,    2,   10,   10,    8,
+       10,    0,    0,    0,    4,   10,   10,   10,    0,    6,
+        1,    5,   20,    7,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -827,28 +827,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 29 "rules.l"
-{return STRING;}
-	YY_BREAK
-case 11:
-YY_RULE_SETUP
-#line 31 "rules.l"
+#line 30 "rules.l"
 {
 	strcpy(yylval.str,yytext);
 	return VARS;
 	}
 	YY_BREAK
-case 12:
+case 11:
 YY_RULE_SETUP
-#line 36 "rules.l"
+#line 35 "rules.l"
 {
 	yylval.flo = atof(yytext);
 	return NUM;
 	}
 	YY_BREAK
-case 13:
+case 12:
 YY_RULE_SETUP
-#line 41 "rules.l"
+#line 40 "rules.l"
 {
 	int i; 
 	for(i = 0; i < strlen(yytext); i++){
@@ -856,68 +851,69 @@ YY_RULE_SETUP
 	}
 	yytext[i-2] = '\0';
 	strcpy(yylval.str, yytext);
+	printf("%s .l\n", yytext);
 	return STRING;
+	}
+	YY_BREAK
+case 13:
+YY_RULE_SETUP
+#line 51 "rules.l"
+{return *yytext;
 	}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 51 "rules.l"
-{return *yytext;
-			}
-	YY_BREAK
-case 15:
-YY_RULE_SETUP
 #line 55 "rules.l"
 {yylval.fn = 1; return CMP; }
 	YY_BREAK
-case 16:
+case 15:
 YY_RULE_SETUP
 #line 56 "rules.l"
 {yylval.fn = 2; return CMP; }
 	YY_BREAK
-case 17:
+case 16:
 YY_RULE_SETUP
 #line 57 "rules.l"
 {yylval.fn = 3; return CMP; }
 	YY_BREAK
-case 18:
+case 17:
 YY_RULE_SETUP
 #line 58 "rules.l"
 {yylval.fn = 4; return CMP; }
 	YY_BREAK
-case 19:
+case 18:
 YY_RULE_SETUP
 #line 59 "rules.l"
 {yylval.fn = 5; return CMP; }
 	YY_BREAK
-case 20:
+case 19:
 YY_RULE_SETUP
 #line 60 "rules.l"
 {yylval.fn = 6; return CMP; }
 	YY_BREAK
-case 21:
-/* rule 21 can match eol */
+case 20:
+/* rule 20 can match eol */
 YY_RULE_SETUP
 #line 62 "rules.l"
 {;}
 	YY_BREAK
-case 22:
-/* rule 22 can match eol */
+case 21:
+/* rule 21 can match eol */
 YY_RULE_SETUP
 #line 64 "rules.l"
 {;}
 	YY_BREAK
-case 23:
+case 22:
 YY_RULE_SETUP
 #line 65 "rules.l"
 {printf("(%s) Ingonrado\n",yytext);}
 	YY_BREAK
-case 24:
+case 23:
 YY_RULE_SETUP
 #line 66 "rules.l"
 ECHO;
 	YY_BREAK
-#line 921 "lex.yy.c"
+#line 917 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
