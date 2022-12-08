@@ -37,6 +37,10 @@ num3 = 2
 num3++
 Out(num3)
 
+num3 = 2
+num3--
+Out(num3)
+
 var num5
 #Imp(num5)
 #Out(num5)

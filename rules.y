@@ -331,7 +331,7 @@ void yyerror (char *s){
 
 %token <flo>NUM
 %token <str>VARS
-%token START END IF ELSE WHILE PRINT PRINTS SCAN DECL INGREMENTO
+%token START END IF ELSE WHILE PRINT PRINTS SCAN DECL INGREMENTO DECREMENTO
 %token <str>STRING
 %token <fn> CMP
 %token EXPONENT
@@ -402,8 +402,11 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		}
 	| VARS INGREMENTO
 		{
-			printf(">>");
-			$$ = newast('+', newValorVal($1), newnum(1.0)); 
+			$$ = newasgn($1, newast('+', newValorVal($1), newnum(1.0))); 
+		}
+	| VARS DECREMENTO
+		{
+			$$ = newasgn($1, newast('-', newValorVal($1), newnum(1.0))); 
 		}
 
 ;	

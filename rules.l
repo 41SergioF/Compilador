@@ -17,6 +17,7 @@ DECL "var"
 EXPONENT "**"
 STRING (\".+*\")
 INGREMENTO "++"
+DECREMENTO "--"
 
 %%
 {START} {return START;}
@@ -30,6 +31,7 @@ INGREMENTO "++"
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
 {INGREMENTO} {return INGREMENTO;}
+{DECREMENTO} {return DECREMENTO;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);
