@@ -15,6 +15,7 @@ PRINTS "PRINTS"
 DECL "var"	
 EXPONENT "**"
 STRING (\".+*\")
+INGREMENTO "++"
 
 %%
 {START} {return START;}
@@ -26,6 +27,7 @@ STRING (\".+*\")
 {PRINTS} {return PRINTS;}
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
+{INGREMENTO} {return INGREMENTO;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);
@@ -44,9 +46,11 @@ STRING (\".+*\")
 	}
 	yytext[i-2] = '\0';
 	strcpy(yylval.str, yytext);
-	printf("%s .l\n", yytext);
+	//printf("%s .l\n", yytext);
 	return STRING;
 	}
+
+
 
 [-+()=/*^{};] {return *yytext;
 	}

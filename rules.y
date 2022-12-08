@@ -114,7 +114,7 @@ Ast * newnum(double d) { /*Função de que cria um novo número*/
 }
 
 
-Ast * newstring(char str[]) { /*Função de que cria uma nova string*/
+Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 	Strval *a = (Strval*) malloc(sizeof(Strval));
 	if(!a) {
 		printf("out of space");
@@ -269,8 +269,8 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf ("%.2f\n",v); 
 					break;  /*Função que imprime um valor*/
 		
-		case 'Q': 	stringVar = eval2(a->l);
-					printf("%s", stringVar);
+		case 'Q': 	
+					printf("%s\n", ((Strval *)a->l)->string);
 					break;  /*Função que imprime um valor*/
 		
 		case 'V': 	l1 = insertVar(l1,((VarName*)a)->var);
@@ -299,7 +299,7 @@ void yyerror (char *s){
 
 %token <flo>NUM
 %token <str>VARS
-%token START END IF ELSE WHILE PRINT PRINTS DECL
+%token START END IF ELSE WHILE PRINT PRINTS DECL INGREMENTO
 %token <str>STRING
 %token <fn> CMP
 %token EXPONENT
@@ -311,8 +311,7 @@ void yyerror (char *s){
 %left EXPONENT
 
 
-%type <a> exp list stmt prog
-%type <str> exp2
+%type <a> exp list stmt prog exp2
 
 %nonassoc IFX NEG
 
@@ -359,6 +358,11 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		{
 			$$ = newvari('V',$2);
 		}
+	| VARS INGREMENTO
+		{
+			printf(">>");
+			$$ = newast('+', newValorVal($1), newnum(1)); 
+		}
 
 ;	
 
@@ -380,7 +384,9 @@ exp:
 
 	;
 
-exp2: STRING {printf("dqwdq\n");/*$$ = newstring($1);*/}
+exp2: STRING {
+		$$ = newString($1);
+	}
 	;
 
 %%

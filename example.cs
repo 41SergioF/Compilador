@@ -34,4 +34,8 @@ PRINT(num3)
 #var name
 PRINTS("Carlos")
 
+num3 = 2
+num3++
+PRINT(num3)
+
 END
