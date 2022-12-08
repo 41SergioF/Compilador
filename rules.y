@@ -7,9 +7,11 @@
 char var_work_string[50];
 	
 	typedef struct vars{//estrutura de uma variável
+		int nodetype;
 		char name[50];
 		double valor;
 		char string[200];
+		double *vet;
 		struct vars * prox;
 	}VARI;
 	
@@ -19,9 +21,19 @@ char var_work_string[50];
 		VARI*new =(VARI*)malloc(sizeof(VARI));
 		strcpy(new->name,n);
 		new->prox = l;
+		new->nodetype = 1;
 		return new;
 	}
-	
+
+	VARI *insertArray(VARI*l,char n[], int tamanho){
+		VARI * new = (VARI*)malloc(sizeof(VARI));
+		strcpy(new->name,n);
+		new->vet = (double*)malloc(tamanho * sizeof(double));
+		new->prox = l;
+		new->nodetype = 3;
+		return new;
+	}
+
 	//busca uma variável na lista de variáveis
 	VARI *searchVar(VARI*l,char n[]){
 		VARI*aux = l;
@@ -57,6 +69,7 @@ nesse exemplo uma variável é um número no vetor var[26]*/
 typedef struct VarName {
 	int nodetype;
 	char var[50];
+	int size;
 }VarName;
 
 typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
@@ -99,6 +112,18 @@ Ast * newvari(int nodetype, char nome[50]) { /*Função que cria uma nova variá
 	}
 	a->nodetype = nodetype;;
 	strcpy(a->var,nome);
+	return (Ast*)a;
+}
+
+Ast * newArray(char nodetype, char nome[50], int tam) {			/*Função de que cria uma nova variável*/
+	VarName *a = (VarName*) malloc(sizeof(VarName));
+	if(!a) {
+		printf("out of space");
+		exit(0);
+	}
+	a->nodetype = nodetype;
+	strcpy(a->var,nome);
+	a->size = tam;
 	return (Ast*)a;
 }
 
@@ -280,6 +305,8 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 		
 		case 'V': 	l1 = insertVar(l1,((VarName*)a)->var);
 					break;
+		case 'a':
+					l1 = insertArray(l1,((VarName*)a)->var,((VarName*)a)->size);
 			
 		default: printf("internal error: bad node %c\n", a->nodetype);
 				
@@ -351,6 +378,8 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		{
 			$$ = newasgn($1,$3);
 		}
+
+	//| VARS '[' NUM ']' '='
 	| PRINT '(' exp ')'
 		{
 			$$ = newast('P',$3,NULL);
@@ -366,6 +395,10 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 	| DECL VARS
 		{
 			$$ = newvari('V',$2);
+		}
+	| DECL VARS '[' NUM ']'
+		{
+			$$ = newArray('a' $2, $4);
 		}
 	| VARS INGREMENTO
 		{
