@@ -38,4 +38,8 @@ num3 = 2
 num3++
 PRINT(num3)
 
+var num5
+LER(num5)
+PRINT(num5)
+
 END

@@ -12,6 +12,7 @@ ELSE "ELSE"
 WHILE "WHILE"
 PRINT "PRINT"
 PRINTS "PRINTS"
+SCAN "LER"
 DECL "var"	
 EXPONENT "**"
 STRING (\".+*\")
@@ -25,6 +26,7 @@ INGREMENTO "++"
 {WHILE} {return WHILE;}
 {PRINT} {return PRINT;}
 {PRINTS} {return PRINTS;}
+{SCAN} {return SCAN;}
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
 {INGREMENTO} {return INGREMENTO;}

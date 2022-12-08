@@ -208,6 +208,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 			aux1 = searchVar(l1,((VarName *)a)->var);
 			v = aux1->valor;
 			break;
+			//printf("%ld %ld\n", eval(a->l), eval(a->r));
 		case '+': v = eval(a->l) + eval(a->r); break;	/*Operações "árv esq   +   árv dir"*/
 		case '-': v = eval(a->l) - eval(a->r); break;	/*Operações*/
 		case '*': v = eval(a->l) * eval(a->r); break;	/*Operações*/
@@ -251,7 +252,11 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					v = 0.0;
 				}
 			break;
-			
+		case 'O':
+			scanf("%lf", &v);
+			aux1 = searchVar(l1, ((VarName *)a)->var);
+			aux1->valor = v;
+
 		case 'W':
 			v = 0.0;
 			if( ((Flow *)a)->tl) {
@@ -299,7 +304,7 @@ void yyerror (char *s){
 
 %token <flo>NUM
 %token <str>VARS
-%token START END IF ELSE WHILE PRINT PRINTS DECL INGREMENTO
+%token START END IF ELSE WHILE PRINT PRINTS SCAN DECL INGREMENTO
 %token <str>STRING
 %token <fn> CMP
 %token EXPONENT
@@ -354,6 +359,10 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 		{
 			$$ = newast('Q',$3,NULL);
 		}
+	| SCAN '(' VARS ')'
+		{
+			$$ = newvari('O', $3);
+		}
 	| DECL VARS
 		{
 			$$ = newvari('V',$2);
@@ -361,7 +370,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX
 	| VARS INGREMENTO
 		{
 			printf(">>");
-			$$ = newast('+', newValorVal($1), newnum(1)); 
+			$$ = newast('+', newValorVal($1), newnum(1.0)); 
 		}
 
 ;	
