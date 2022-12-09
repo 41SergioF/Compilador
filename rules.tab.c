@@ -89,7 +89,7 @@
 	}VARI;
 	
 	//insere uma nova variável na lista de variáveis
-	VARI *ins(VARI*l,char n[]){
+	VARI *insert_vari(VARI*l,char n[]){
 		VARI*new =(VARI*)malloc(sizeof(VARI));
 		strcpy(new->name,n);
 		new->prox = l;
@@ -97,7 +97,7 @@
 		return new;
 	}
 	
-	VARI *ins_a(VARI*l,char n[], int tamanho){
+	VARI *insert_array(VARI*l,char n[], int tamanho){
 		VARI*new =(VARI*)malloc(sizeof(VARI));
 		strcpy(new->name,n);
 		new->vet = (double*)malloc(tamanho * sizeof(double));
@@ -130,22 +130,22 @@ typedef struct numval { /*Estrutura de um número*/
 	double number;
 }Numval;
 
-typedef struct varval { /*Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]*/
+typedef struct nameVari { /*Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]*/
 	int nodetype;
 	char var[50];
 	int size;
-}Varval;
+}NameVari;
 
 typedef struct strval { /*Estrutura de a string*/
 	int nodetype;
 	char string[50];
 }Strval;
 /*	
-typedef struct varval_array { //Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]
+typedef struct NameVari_array { //Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]
 	int nodetype;
 	char var[50];
 	int size;
-}Varval_array;	
+}NameVari_array;	
 */
 	
 typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
@@ -180,7 +180,7 @@ Ast * newast(int nodetype, Ast *l, Ast *r){ /*Função para criar um nó*/
 }
  
 Ast * newvari(int nodetype, char nome[50]) {			/*Função de que cria uma nova variável*/
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -191,7 +191,7 @@ Ast * newvari(int nodetype, char nome[50]) {			/*Função de que cria uma nova v
 }
 
 Ast * newarray(int nodetype, char nome[50], int tam) {			/*Função de que cria uma nova variável*/
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -279,7 +279,7 @@ Ast * newasgn_a(char s[50], Ast *v, int indice) { /*Função para um nó de atri
 	
 Ast * newValorVal(char s[]) { /*Função que recupera o nome/referência de uma variável, neste caso o número*/
 	
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -290,7 +290,7 @@ Ast * newValorVal(char s[]) { /*Função que recupera o nome/referência de uma 
 }
 	
 Ast * newValorVal_a(char s[], int indice) { /*Função que recupera o nome/referência de uma variável, neste caso o número*/
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -304,7 +304,7 @@ Ast * newValorVal_a(char s[], int indice) { /*Função que recupera o nome/refer
 
 Ast * newValorValS(char s[50]) { /*Função que recupera o nome/referência de uma variável, neste caso o número*/
 	
-	Varval *a = (Varval*) malloc(sizeof(Varval));
+	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -323,7 +323,7 @@ char * eval2(Ast *a) { /*Função que executa operações a partir de um nó*/
 			switch(a->nodetype) {
 			
 			case 'Q':
-				aux1 = srch(l1,((Varval *)a)->var);
+				aux1 = srch(l1,((NameVari *)a)->var);
 				return aux1->valors;
 				break;
 
@@ -347,14 +347,14 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	switch(a->nodetype) {
 		case 'K': v = ((Numval *)a)->number; break; 	/*Recupera um número*/
 		case 'N': 
-			aux1 = srch(l1,((Varval *)a)->var);
+			aux1 = srch(l1,((NameVari *)a)->var);
 			v = aux1->valor;
 			break;
 		
 		case 'n':
 			
-			aux1 = srch(l1,((Varval *)a)->var);
-			v = aux1->vet[((Varval *)a)->size];
+			aux1 = srch(l1,((NameVari *)a)->var);
+			v = aux1->vet[((NameVari *)a)->size];
 			break;
 		
 		case '+': v = eval(a->l) + eval(a->r); break;	/*Operações "árv esq   +   árv dir"*/
@@ -374,7 +374,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 			v = eval(((Symasgn *)a)->v); /*Recupera o valor*/
 			aux = srch(l1,((Symasgn *)a)->s);
 			
-			//printf ("AQUI %d\n",((Varval *)aux)->nodetype);
+			//printf ("AQUI %d\n",((NameVari *)aux)->nodetype);
 			
 			if(aux->nodetype == 1){ //lembrar de verificar os demais tipos
 				aux->valor = v;
@@ -415,12 +415,12 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					break;  			/*Função que imprime um valor*/
 		
 		case 'S': 	scanf("%lf",&v);
-					aux1 = srch(l1,((Varval *)a)->var);
+					aux1 = srch(l1,((NameVari *)a)->var);
 					aux1->valor = v;
 					break;
 		
 		case 'T': 	scanf("%s",v1);
-					aux1 = srch(l1,((Varval *)a)->var);
+					aux1 = srch(l1,((NameVari *)a)->var);
 					strcpy(aux1->valors,v1);
 					break;			
 		
@@ -432,10 +432,10 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf("%s\n", ((Strval *)a->l)->string);
 					break;
 					
-		case 'V': 	l1 = ins(l1,((Varval*)a)->var);
+		case 'V': 	l1 = insert_vari(l1,((NameVari*)a)->var);
 					break;
 		case 'a':	
-					l1 = ins_a(l1,((Varval*)a)->var,((Varval*)a)->size);
+					l1 = insert_array(l1,((NameVari*)a)->var,((NameVari*)a)->size);
 					break;
 			
 		default: printf("internal error: bad node %c\n", a->nodetype);
