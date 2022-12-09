@@ -135,7 +135,7 @@ Ast * newarray(int nodetype, char nome[50], int tam) {			/*Função de que cria 
 }	
 
 	
-Ast * newnum(double d) {			/*Função de que cria um novo número*/
+Ast * newNum(double d) {			/*Função de que cria um novo número*/
 	Numval *a = (Numval*) malloc(sizeof(Numval));
 	if(!a) {
 		printf("out of space");
@@ -152,7 +152,7 @@ Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'S';
+	a->nodetype = 'J';
 	strcpy(a->string, str);
 	return (Ast*)a;
 }
@@ -278,6 +278,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	}
 	switch(a->nodetype) {
 		case 'K': v = ((Numval *)a)->number; break; 	/*Recupera um número*/
+		
 		case 'N': 
 			aux1 = srch(l1,((NameVari *)a)->var);
 			v = aux1->valor;
@@ -441,11 +442,11 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
 	| VARS INGREMENTO
 		{
-			$$ = newasgn($1, newast('+', newValorVal($1), newnum(1.0))); 
+			$$ = newasgn($1, newast('+', newValorVal($1), newNum(1.0))); 
 		}
 	| VARS DECREMENTO
 		{
-			$$ = newasgn($1, newast('-', newValorVal($1), newnum(1.0))); 
+			$$ = newasgn($1, newast('-', newValorVal($1), newNum(1.0))); 
 		}
 	;
 
@@ -461,7 +462,8 @@ exp:
 	|exp CMP exp {$$ = newcmp($2,$1,$3);}		/*Testes condicionais*/
 	|'(' exp ')' {$$ = $2;}
 	|'-' exp %prec NEG {$$ = newast('M',$2,NULL);}
-	|NUM 	{$$ = newnum($1);}						/*token de um número*/
+	|NUM {$$ = newNum($1);}						/*token de um número*/
+	|STRING {$$ = newString($1);}						/*token de um número*/
 	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
 	|VARS 	%prec VET {$$ = newValorVal($1);}		/*token de uma variável*/
 	|VARS '['NUM']' {$$ = newValorVal_a($1,$3);}				/*token de uma variável*/
