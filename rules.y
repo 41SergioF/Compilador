@@ -103,7 +103,7 @@ Ast * newast(int nodetype, Ast *l, Ast *r){ /*Função para criar um nó*/
 	return a;
 }
  
-Ast * newvari(int nodetype, char nome[50]) {			/*Função de que cria uma nova variável*/
+Ast * newVari(int nodetype, char nome[50]) {			/*Função de que cria uma nova variável*/
 	NameVari *a = (NameVari*) malloc(sizeof(NameVari));
 	if(!a) {
 		printf("out of space");
@@ -420,13 +420,13 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
-	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newvari('V',$3);}
+	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
 	| DECL VARS '['NUM']'	{ $$ = newarray('a',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
 	| PRINT '(' exp ')' 	{$$ = newast('P',$3,NULL);}
 	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}
-	| SCAN '('VARS')'		{$$ = newvari('S',$3);}
-	| SCANS '('VARS')'		{$$ = newvari('T',$3);}
+	| SCAN '('VARS')'		{$$ = newVari('S',$3);}
+	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
 	| VARS INGREMENTO
 		{
 			$$ = newasgn($1, newast('+', newValorVal($1), newnum(1.0))); 
