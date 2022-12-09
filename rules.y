@@ -313,6 +313,9 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 				aux->valor = v;
 				//printf ("%lf\n",v);
 			}
+			if(aux->nodetype == 2){
+				strcpy(aux->string, ((Strval *)a->l)->string);
+			}
 			else
 				aux->vet[((Symasgn *)a)->pos] = v; //inserção no vetor
 			break;
