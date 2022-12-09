@@ -11,23 +11,28 @@ IF "if"
 ELSE "else"
 WHILE "while"
 PRINT "Out"
+PRINTT "Outt"
 PRINTS "Outs"
-SCAN "Inp"
+SCAN "Imp"
+SCANS "Imps"
 DECL "var"	
 EXPONENT "**"
 STRING (\".+*\")
 INGREMENTO "++"
 DECREMENTO "--"
 
+	
 %%
 {START} {return START;}
 {END} {return END;}
 {IF} {return IF;}
 {ELSE} {return ELSE;}
 {WHILE} {return WHILE;}
+{PRINTT} {return PRINTT;}
 {PRINT} {return PRINT;}
 {PRINTS} {return PRINTS;}
 {SCAN} {return SCAN;}
+{SCANS} {return SCANS;}
 {DECL} {return DECL;}
 {EXPONENT} {return EXPONENT;}
 {INGREMENTO} {return INGREMENTO;}
@@ -36,11 +41,6 @@ DECREMENTO "--"
 {VARS} {
 	strcpy(yylval.str,yytext);
 	return VARS;
-	}
-
-{NUM} {
-	yylval.flo = atof(yytext);
-	return NUM;
 	}
 
 {STRING} {
@@ -54,10 +54,13 @@ DECREMENTO "--"
 	return STRING;
 	}
 
-
-
-[-+()=/*^{};] {return *yytext;
+{NUM} {
+	yylval.flo = atof(yytext);
+	return NUM;
 	}
+
+[-+()=/*^{};\[\]] {return *yytext;
+			}
 			
 
 ">" {yylval.fn = 1; return CMP; }
