@@ -27,6 +27,14 @@
 		new->nodetype = 1;
 		return new;
 	}
+
+	VARI *insert_vari_str(VARI*l,char n[]){
+		VARI*new =(VARI*)malloc(sizeof(VARI));
+		strcpy(new->name,n);
+		new->prox = l;
+		new->nodetype = 2;
+		return new;
+	}
 	
 	VARI *insert_array(VARI*l,char n[], int tamanho){
 		VARI*new =(VARI*)malloc(sizeof(VARI));
@@ -358,6 +366,9 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					
 		case 'V': 	l1 = insert_vari(l1,((NameVari*)a)->var);
 					break;
+		case 'G': 
+					l1 = insert_vari_str(l1,((NameVari*)a)->var);
+					break;
 		case 'a':	
 					l1 = insert_array(l1,((NameVari*)a)->var,((NameVari*)a)->size);
 					break;
@@ -421,6 +432,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
 	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
+	| DECL TYPESTR VARS	 %prec DECLPREC { $$ = newVari('G',$3);}
 	| DECL VARS '['NUM']'	{ $$ = newarray('a',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
 	| PRINT '(' exp ')' 	{$$ = newast('P',$3,NULL);}
