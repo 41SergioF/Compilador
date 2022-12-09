@@ -910,7 +910,7 @@ static const yytype_int16 yyrline[] =
        0,   406,   406,   409,   410,   416,   417,   418,   420,   421,
      423,   424,   425,   426,   427,   428,   429,   430,   434,   440,
      441,   445,   446,   447,   448,   449,   450,   451,   452,   453,
-     454,   455,   459,   460
+     454,   455,   460,   461
 };
 #endif
 
@@ -1940,13 +1940,13 @@ yyreduce:
     break;
 
   case 32:
-#line 459 "rules.y"
+#line 460 "rules.y"
               {(yyval.a) = newValorValS((yyvsp[0].str));}
 #line 1946 "rules.tab.c"
     break;
 
   case 33:
-#line 460 "rules.y"
+#line 461 "rules.y"
                  {(yyval.a) = newString((yyvsp[0].str));}
 #line 1952 "rules.tab.c"
     break;
@@ -2184,7 +2184,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 462 "rules.y"
+#line 463 "rules.y"
 
 
 #include "lex.yy.c"
