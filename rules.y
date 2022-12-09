@@ -420,7 +420,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
-	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newvari('V',$2);}
+	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newvari('V',$3);}
 	| DECL VARS '['NUM']'	{ $$ = newarray('a',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
 	| PRINT '(' exp ')' 	{$$ = newast('P',$3,NULL);}
