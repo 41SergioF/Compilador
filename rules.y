@@ -12,10 +12,10 @@
 	
 	typedef struct vars{//estrutura de uma variável
 		int nodetype;
-		char name[50];
-		double valor;
-		char valors[50];
-		double *vet;
+		char name[50];	 // Nome da variável
+		double valor;	 // Valor quando double
+		char valors[50]; // Valor quando String
+		double *vet;	 // Ponteiro para um vetor de double
 		struct vars * prox;
 	}VARI;
 	
@@ -453,6 +453,7 @@ exp:
 	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
 	|VARS 	%prec VET {$$ = newValorVal($1);}		/*token de uma variável*/
 	|VARS '['NUM']' {$$ = newValorVal_a($1,$3);}				/*token de uma variável*/
+		
 	;
 
 exp1: 

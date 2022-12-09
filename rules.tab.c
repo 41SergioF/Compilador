@@ -81,10 +81,10 @@
 	
 	typedef struct vars{//estrutura de uma variável
 		int nodetype;
-		char name[50];
-		double valor;
-		char valors[50];
-		double *vet;
+		char name[50];	 // Nome da variável
+		double valor;	 // Valor quando double
+		char valors[50]; // Valor quando String
+		double *vet;	 // Ponteiro para um vetor de double
 		struct vars * prox;
 	}VARI;
 	
@@ -140,13 +140,6 @@ typedef struct strval { /*Estrutura de a string*/
 	int nodetype;
 	char string[50];
 }Strval;
-/*	
-typedef struct NameVari_array { //Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor var[26]
-	int nodetype;
-	char var[50];
-	int size;
-}NameVari_array;	
-*/
 	
 typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
 	int nodetype;
@@ -452,7 +445,7 @@ void yyerror (char *s){
 }
 
 
-#line 456 "rules.tab.c"
+#line 449 "rules.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -527,7 +520,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 387 "rules.y"
+#line 380 "rules.y"
 
 	float flo;
 	int fn;
@@ -536,7 +529,7 @@ union YYSTYPE
 	Ast *a;
 	
 
-#line 540 "rules.tab.c"
+#line 533 "rules.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -914,10 +907,10 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   413,   413,   416,   417,   423,   424,   425,   427,   428,
-     430,   431,   432,   433,   434,   435,   436,   437,   441,   447,
-     448,   452,   453,   454,   455,   456,   457,   458,   459,   460,
-     461,   462,   466,   467
+       0,   406,   406,   409,   410,   416,   417,   418,   420,   421,
+     423,   424,   425,   426,   427,   428,   429,   430,   434,   440,
+     441,   445,   446,   447,   448,   449,   450,   451,   452,   453,
+     454,   455,   459,   460
 };
 #endif
 
@@ -1769,197 +1762,197 @@ yyreduce:
   switch (yyn)
     {
   case 3:
-#line 416 "rules.y"
+#line 409 "rules.y"
                         {eval((yyvsp[0].a));}
-#line 1775 "rules.tab.c"
+#line 1768 "rules.tab.c"
     break;
 
   case 4:
-#line 417 "rules.y"
+#line 410 "rules.y"
                     {eval((yyvsp[0].a));}
-#line 1781 "rules.tab.c"
+#line 1774 "rules.tab.c"
     break;
 
   case 5:
-#line 423 "rules.y"
+#line 416 "rules.y"
                                             {(yyval.a) = newflow('I', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
-#line 1787 "rules.tab.c"
+#line 1780 "rules.tab.c"
     break;
 
   case 6:
-#line 424 "rules.y"
+#line 417 "rules.y"
                                                         {(yyval.a) = newflow('I', (yyvsp[-8].a), (yyvsp[-5].a), (yyvsp[-1].a));}
-#line 1793 "rules.tab.c"
+#line 1786 "rules.tab.c"
     break;
 
   case 7:
-#line 425 "rules.y"
+#line 418 "rules.y"
                                          {(yyval.a) = newflow('W', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
-#line 1799 "rules.tab.c"
+#line 1792 "rules.tab.c"
     break;
 
   case 8:
-#line 427 "rules.y"
+#line 420 "rules.y"
                                      { (yyval.a) = newasgn((yyvsp[-2].str),(yyvsp[0].a));}
-#line 1805 "rules.tab.c"
+#line 1798 "rules.tab.c"
     break;
 
   case 9:
-#line 428 "rules.y"
+#line 421 "rules.y"
                                  {(yyval.a) = newasgn_a((yyvsp[-5].str),(yyvsp[0].a),(yyvsp[-3].flo));}
-#line 1811 "rules.tab.c"
+#line 1804 "rules.tab.c"
     break;
 
   case 10:
-#line 430 "rules.y"
+#line 423 "rules.y"
                                         { (yyval.a) = newvari('V',(yyvsp[0].str));}
-#line 1817 "rules.tab.c"
+#line 1810 "rules.tab.c"
     break;
 
   case 11:
-#line 431 "rules.y"
+#line 424 "rules.y"
                                 { (yyval.a) = newarray('a',(yyvsp[-3].str),(yyvsp[-1].flo));}
-#line 1823 "rules.tab.c"
+#line 1816 "rules.tab.c"
     break;
 
   case 12:
-#line 432 "rules.y"
+#line 425 "rules.y"
                               { (yyval.a) = newast('Q',(yyvsp[-1].a),NULL);}
-#line 1829 "rules.tab.c"
+#line 1822 "rules.tab.c"
     break;
 
   case 13:
-#line 433 "rules.y"
+#line 426 "rules.y"
                                 {(yyval.a) = newast('P',(yyvsp[-1].a),NULL);}
-#line 1835 "rules.tab.c"
+#line 1828 "rules.tab.c"
     break;
 
   case 14:
-#line 434 "rules.y"
+#line 427 "rules.y"
                                 {(yyval.a) = newast('Y',(yyvsp[-1].a),NULL);}
-#line 1841 "rules.tab.c"
+#line 1834 "rules.tab.c"
     break;
 
   case 15:
-#line 435 "rules.y"
+#line 428 "rules.y"
                                         {(yyval.a) = newvari('S',(yyvsp[-1].str));}
-#line 1847 "rules.tab.c"
+#line 1840 "rules.tab.c"
     break;
 
   case 16:
-#line 436 "rules.y"
+#line 429 "rules.y"
                                         {(yyval.a) = newvari('T',(yyvsp[-1].str));}
-#line 1853 "rules.tab.c"
+#line 1846 "rules.tab.c"
     break;
 
   case 17:
-#line 438 "rules.y"
+#line 431 "rules.y"
                 {
 			(yyval.a) = newasgn((yyvsp[-1].str), newast('+', newValorVal((yyvsp[-1].str)), newnum(1.0))); 
 		}
-#line 1861 "rules.tab.c"
+#line 1854 "rules.tab.c"
     break;
 
   case 18:
-#line 442 "rules.y"
+#line 435 "rules.y"
                 {
 			(yyval.a) = newasgn((yyvsp[-1].str), newast('-', newValorVal((yyvsp[-1].str)), newnum(1.0))); 
 		}
-#line 1869 "rules.tab.c"
+#line 1862 "rules.tab.c"
     break;
 
   case 19:
-#line 447 "rules.y"
+#line 440 "rules.y"
            {(yyval.a) = (yyvsp[0].a);}
-#line 1875 "rules.tab.c"
+#line 1868 "rules.tab.c"
     break;
 
   case 20:
-#line 448 "rules.y"
+#line 441 "rules.y"
                             { (yyval.a) = newast('L', (yyvsp[-1].a), (yyvsp[0].a));	}
-#line 1881 "rules.tab.c"
+#line 1874 "rules.tab.c"
     break;
 
   case 21:
-#line 452 "rules.y"
+#line 445 "rules.y"
                      {(yyval.a) = newast('+',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1887 "rules.tab.c"
+#line 1880 "rules.tab.c"
     break;
 
   case 22:
-#line 453 "rules.y"
+#line 446 "rules.y"
                      {(yyval.a) = newast('-',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1893 "rules.tab.c"
+#line 1886 "rules.tab.c"
     break;
 
   case 23:
-#line 454 "rules.y"
+#line 447 "rules.y"
                      {(yyval.a) = newast('*',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1899 "rules.tab.c"
+#line 1892 "rules.tab.c"
     break;
 
   case 24:
-#line 455 "rules.y"
+#line 448 "rules.y"
                      {(yyval.a) = newast('/',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1905 "rules.tab.c"
+#line 1898 "rules.tab.c"
     break;
 
   case 25:
-#line 456 "rules.y"
+#line 449 "rules.y"
                      {(yyval.a) = newcmp((yyvsp[-1].fn),(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1911 "rules.tab.c"
+#line 1904 "rules.tab.c"
     break;
 
   case 26:
-#line 457 "rules.y"
+#line 450 "rules.y"
                      {(yyval.a) = (yyvsp[-1].a);}
-#line 1917 "rules.tab.c"
+#line 1910 "rules.tab.c"
     break;
 
   case 27:
-#line 458 "rules.y"
+#line 451 "rules.y"
                            {(yyval.a) = newast('M',(yyvsp[0].a),NULL);}
-#line 1923 "rules.tab.c"
+#line 1916 "rules.tab.c"
     break;
 
   case 28:
-#line 459 "rules.y"
+#line 452 "rules.y"
                 {(yyval.a) = newnum((yyvsp[0].flo));}
-#line 1929 "rules.tab.c"
+#line 1922 "rules.tab.c"
     break;
 
   case 29:
-#line 460 "rules.y"
+#line 453 "rules.y"
                           {(yyval.a) = newast('^', (yyvsp[-2].a), (yyvsp[0].a));}
-#line 1935 "rules.tab.c"
+#line 1928 "rules.tab.c"
     break;
 
   case 30:
-#line 461 "rules.y"
+#line 454 "rules.y"
                           {(yyval.a) = newValorVal((yyvsp[0].str));}
-#line 1941 "rules.tab.c"
+#line 1934 "rules.tab.c"
     break;
 
   case 31:
-#line 462 "rules.y"
+#line 455 "rules.y"
                         {(yyval.a) = newValorVal_a((yyvsp[-3].str),(yyvsp[-1].flo));}
-#line 1947 "rules.tab.c"
+#line 1940 "rules.tab.c"
     break;
 
   case 32:
-#line 466 "rules.y"
+#line 459 "rules.y"
               {(yyval.a) = newValorValS((yyvsp[0].str));}
-#line 1953 "rules.tab.c"
+#line 1946 "rules.tab.c"
     break;
 
   case 33:
-#line 467 "rules.y"
+#line 460 "rules.y"
                  {(yyval.a) = newString((yyvsp[0].str));}
-#line 1959 "rules.tab.c"
+#line 1952 "rules.tab.c"
     break;
 
 
-#line 1963 "rules.tab.c"
+#line 1956 "rules.tab.c"
 
       default: break;
     }
@@ -2191,7 +2184,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 469 "rules.y"
+#line 462 "rules.y"
 
 
 #include "lex.yy.c"
