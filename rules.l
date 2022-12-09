@@ -20,7 +20,8 @@ EXPONENT "**"
 STRING (\".+*\")
 INGREMENTO "++"
 DECREMENTO "--"
-
+TYPENUM "Num"
+TYPESTR "Str"
 	
 %%
 {START} {return START;}
@@ -37,6 +38,8 @@ DECREMENTO "--"
 {EXPONENT} {return EXPONENT;}
 {INGREMENTO} {return INGREMENTO;}
 {DECREMENTO} {return DECREMENTO;}
+{TYPENUM} {return TYPENUM;}
+{TYPESTR} {return TYPESTR;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);

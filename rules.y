@@ -389,7 +389,7 @@ void yyerror (char *s){
 %token <str>VARS
 %token <str>STRING
 %token START END IF ELSE WHILE PRINT PRINTS DECL SCAN PRINTT SCANS INGREMENTO DECREMENTO
-%token EXPONENT
+%token EXPONENT TYPENUM TYPESTR 
 %token <fn> CMP
 
 %right '='
