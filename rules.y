@@ -6,21 +6,22 @@
 
 //nodetype variáveis
 
-//1 - números
-//2 - string
-//3 - vetor	
+//1 - Integer
+//2 - Double
+//3 - String
+//4 - Arrey
 	
 	typedef struct vars{//estrutura de uma variável
 		int nodetype;
 		char name[50];	 // Nome da variável
 		double valueDouble;	 // Valor quando double
+		int valueInteger;	 // Valor quando int
 		char valueString[50]; // Valor quando String
 		double *vector;	 // Ponteiro para um vetor de double
 		struct vars * prox;
 	}VARIAVEL;
 	
-	//insere uma nova variável na lista de variáveis
-	VARIAVEL *insert_vari(VARIAVEL*l,char n[]){
+	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
 		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
 		strcpy(new->name,n);
 		new->prox = l;
@@ -28,11 +29,20 @@
 		return new;
 	}
 
-	VARIAVEL *insert_vari_str(VARIAVEL*l,char n[]){
+	//insere uma nova variável na lista de variáveis
+	VARIAVEL *insert_vari_float(VARIAVEL*l,char n[]){
 		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
 		strcpy(new->name,n);
 		new->prox = l;
 		new->nodetype = 2;
+		return new;
+	}
+	
+	VARIAVEL *insert_vari_str(VARIAVEL*l,char n[]){
+		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
+		strcpy(new->name,n);
+		new->prox = l;
+		new->nodetype = 3;
 		return new;
 	}
 	
@@ -68,6 +78,11 @@ typedef struct numVal { /*Estrutura de um número*/
 	int nodetype;
 	double value;
 }NumVal;
+
+typedef struct intVal { /*Estrutura de um número*/
+	int nodetype;
+	double value;
+}IntVal;
 
 typedef struct nameVari { /*Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor name[26]*/
 	int nodetype;
@@ -154,6 +169,17 @@ Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 	}
 	a->nodetype = 'J';
 	strcpy(a->value, str);
+	return (Ast*)a;
+}
+
+Ast * newInterger(int value) { /*Função de que cria uma nova string*/
+	IntVal *a = (IntVal*) malloc(sizeof(IntVal));
+	if(!a) {
+		printf("out of space");
+		exit(0);
+	}
+	a->nodetype = 'R';
+	a->value = value;
 	return (Ast*)a;
 }
 
@@ -309,13 +335,13 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 			
 			//printf ("AQUI %d\n",((NameVari *)aux)->nodetype);
 			
-			if(aux->nodetype == 1){ //lembrar de verificar os demais tipos
+			if(aux->nodetype == 2){ //lembrar de verificar os demais tipos
 				aux->valueDouble = valueDouble;
 				//printf ("%lf\n",v);
-			}
-			if(aux->nodetype == 2){
+			}/*
+			if(aux->nodetype == 3){
 				strcpy(aux->valueString, "teste");
-			}
+			}*/
 			else
 				aux->vector[((Symasgn *)a)->pos] = valueDouble; //inserção no vetor
 			break;
@@ -370,12 +396,15 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 					printf("%s\n", ((StrVal *)a->l)->value);
 					break;
 					
-		case 'V': 	listOfVariavel = insert_vari(listOfVariavel,((NameVari*)a)->name);
+		case 'V': 	listOfVariavel = insert_vari_float(listOfVariavel,((NameVari*)a)->name);
+					break;
+		case 'E': 
+					listOfVariavel = insert_vari_int(listOfVariavel,((NameVari*)a)->name);
 					break;
 		case 'G': 
 					listOfVariavel = insert_vari_str(listOfVariavel,((NameVari*)a)->name);
 					break;
-		case 'a':	
+		case 'A':	
 					listOfVariavel = insert_array(listOfVariavel,((NameVari*)a)->name,((NameVari*)a)->size);
 					break;
 			
@@ -406,7 +435,7 @@ void yyerror (char *name){
 %token <str>VARS
 %token <str>STRING
 %token START END IF ELSE WHILE PRINT PRINTS DECL SCAN PRINTT SCANS INGREMENTO DECREMENTO
-%token EXPONENT TYPENUM TYPESTR 
+%token EXPONENT TYPEFLW TYPEINT TYPESTR 
 %token <fn> CMP
 
 %right '='
@@ -437,9 +466,11 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
-	| DECL TYPENUM VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
+	| DECL TYPEINT VARS	 %prec DECLPREC { $$ = newVari('E',$3);} //Variáreis unicas
+	| DECL TYPEFLW VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
 	| DECL TYPESTR VARS	 %prec DECLPREC { $$ = newVari('G',$3);}
-	| DECL VARS '['NUM']'	{ $$ = newarray('a',$2,$4);}
+
+	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
 	| PRINT '(' exp ')' 	{$$ = newast('P',$3,NULL);}
 	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}

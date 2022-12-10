@@ -20,7 +20,8 @@ EXPONENT "**"
 STRING (\".+*\")
 INGREMENTO "++"
 DECREMENTO "--"
-TYPENUM "Num"
+TYPEINT "Int"
+TYPEFLW "Flw"
 TYPESTR "Str"
 	
 %%
@@ -38,7 +39,8 @@ TYPESTR "Str"
 {EXPONENT} {return EXPONENT;}
 {INGREMENTO} {return INGREMENTO;}
 {DECREMENTO} {return DECREMENTO;}
-{TYPENUM} {return TYPENUM;}
+{TYPEINT} {return TYPEINT;}
+{TYPEFLW} {return TYPEFLW;}
 {TYPESTR} {return TYPESTR;}
 
 {VARS} {
