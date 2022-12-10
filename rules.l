@@ -3,6 +3,7 @@
 %}
 
 COMMENT ("---"("\n"|.*)*"---")|#.*
+SEPARADOR ","
 NUM [0-9]+\.?[0-9]*
 VARS [a-z]+[0-9]*
 START "START"
@@ -42,6 +43,7 @@ TYPESTR "Str"
 {TYPEINT} {return TYPEINT;}
 {TYPEFLW} {return TYPEFLW;}
 {TYPESTR} {return TYPESTR;}
+{SEPARADOR} {return SEPARADOR;}
 
 {VARS} {
 	strcpy(yylval.str,yytext);
@@ -63,6 +65,8 @@ TYPESTR "Str"
 	yylval.flo = atof(yytext);
 	return NUM;
 	}
+
+
 
 [-+()=/*^{};\[\]] {return *yytext;
 			}

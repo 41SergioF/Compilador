@@ -5,6 +5,6 @@ START
 	var Str c
 
 	b = 10
-	Out(b)
+	Out(b, Flw)
 
 END

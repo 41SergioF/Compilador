@@ -435,7 +435,7 @@ void yyerror (char *name){
 %token <str>VARS
 %token <str>STRING
 %token START END IF ELSE WHILE PRINT PRINTS DECL SCAN PRINTT SCANS INGREMENTO DECREMENTO
-%token EXPONENT TYPEFLW TYPEINT TYPESTR 
+%token EXPONENT TYPEFLW TYPEINT TYPESTR SEPARADOR
 %token <fn> CMP
 
 %right '='
@@ -472,7 +472,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 
 	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
-	| PRINT '(' exp ',' TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
+	| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
 	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}
 	| SCAN '('VARS')'		{$$ = newVari('S',$3);}
 	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
