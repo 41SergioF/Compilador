@@ -1,0 +1,8 @@
+----
+typedef struct conteudo{
+		int intergerValue;
+		double doubleValue;
+		char stringValue;
+	}Conteudo;
+	
+----

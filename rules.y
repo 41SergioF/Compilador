@@ -21,6 +21,11 @@
 		struct vars * prox;
 	}VARIAVEL;
 
+	typedef struct conteudo{
+		int intergerValue;
+		double doubleValue;
+		char stringValue;
+	}Conteudo;
 	
 	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
 		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
@@ -218,7 +223,7 @@ Ast * newasgn(char name[50], Ast *v) { /*Função para um nó de atribuição*/
 	a->nodetype = '=';
 	strcpy(a->name,name);
 	a->v = v; /*Valor*/
-	//printf ("aqui:%lf\n",((VARIAVEL*)a->v)->valueDouble);
+	//printf ("aqui:%lf\n",((VARIAVEL*)a->v)->doubleValue);
 	return (Ast *)a;
 }
 
@@ -294,21 +299,24 @@ char * eval2(Ast *a) { /*Função que executa operações a partir de um nó*/
 	}
 
 
-double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
+Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*/
+	Conteudo * cont; //= (Conteudo *)malloc(sizeof(Conteudo));
+	Conteudo * cont_aux; // = (Conteudo *)malloc(sizeof(Conteudo));
 	double valueDouble; 
 	char v1[50];
 	char *v2;
 	VARIAVEL * aux1;
 	if(!a) {
 		printf("internal error, null eval");
-		return 0.0;
+		cont->doubleValue = 0.0;
+		return cont;
 	}
 	switch(a->nodetype) {
-		case 'K': valueDouble = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
+		case 'K': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
 		//case 'J': 
 		case 'N': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-			valueDouble = aux1->valueDouble;
+			cont->doubleValue = aux1->valueDouble;
 			break;
 		
 		case 'n':
@@ -317,66 +325,74 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 			valueDouble = aux1->vector[((NameVari *)a)->size];
 			break;
 		
-		case '+': valueDouble = eval(a->l) + eval(a->r); break;	/*Operações "árv esq   +   árv dir"*/
-		case '-': valueDouble = eval(a->l) - eval(a->r); break;	/*Operações*/
-		case '*': valueDouble = eval(a->l) * eval(a->r); break;	/*Operações*/
-		case '/': valueDouble = eval(a->l) / eval(a->r); break; /*Operações*/
-		case 'M': valueDouble = -eval(a->l); break;				/*Operações, número negativo*/
+		case '+': cont->doubleValue = eval(a->l)->doubleValue + eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '-': cont->doubleValue = eval(a->l)->doubleValue - eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '*': cont->doubleValue = eval(a->l)->doubleValue * eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '/': cont->doubleValue = eval(a->l)->doubleValue / eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case 'M': cont->doubleValue = -eval(a->l)->doubleValue; break;				/*Operações, número negativo*/
 	
-		case '1': valueDouble = (eval(a->l) > eval(a->r))? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
-		case '2': valueDouble = (eval(a->l) < eval(a->r))? 1 : 0; break;
-		case '3': valueDouble = (eval(a->l) != eval(a->r))? 1 : 0; break;
-		case '4': valueDouble = (eval(a->l) == eval(a->r))? 1 : 0; break;
-		case '5': valueDouble = (eval(a->l) >= eval(a->r))? 1 : 0; break;
-		case '6': valueDouble = (eval(a->l) <= eval(a->r))? 1 : 0; break;
+		case '1': cont->doubleValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
+		case '2': cont->doubleValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
+		case '3': cont->doubleValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
+		case '4': cont->doubleValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
+		case '5': cont->doubleValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '6': cont->doubleValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
 		
 		case '=':
-			valueDouble = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
+			cont_aux = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
 			aux = srch(listOfVariavel,((Symasgn *)a)->name);
 			
 			//printf ("AQUI %d\n",((NameVari *)aux)->nodetype);
-			
+			if (aux->nodetype == 1){
+				aux->valueInteger = cont_aux->intergerValue;
+			}
 			if(aux->nodetype == 2){ //lembrar de verificar os demais tipos
-				aux->valueDouble = valueDouble;
-				//printf ("%lf\n",v);
+				aux->valueDouble = cont_aux->doubleValue;
 			}/*
 			if(aux->nodetype == 3){
 				strcpy(aux->valueString, "teste");
 			}*/
 			else
-				aux->vector[((Symasgn *)a)->pos] = valueDouble; //inserção no vetor
+				aux->vector[((Symasgn *)a)->pos] = cont_aux->doubleValue; //inserção no vetor
 			break;
 		
 		case 'I':						/*CASO IF*/
-			if (eval(((Flow *)a)->cond) != 0) {	/*executa a condição / teste*/
+			if (eval(((Flow *)a)->cond)->doubleValue != 0) {	/*executa a condição / teste*/
 				if (((Flow *)a)->tl)		/*Se existir árvore*/
-					valueDouble = eval(((Flow *)a)->tl); /*Verdade*/
+					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue; /*Verdade*/
 				else
 					valueDouble = 0.0;
 			} else {
 				if( ((Flow *)a)->el) {
-					valueDouble = eval(((Flow *)a)->el); /*Falso*/
+					cont->doubleValue = eval(((Flow *)a)->el)->doubleValue; /*Falso*/
 				} else
-					valueDouble = 0.0;
+					cont->doubleValue = 0.0;
 				}
 			break;
 			
 		case 'W':
 			//printf ("WHILE\n");
-			valueDouble = 0.0;
+			cont->doubleValue = 0.0;
 			if( ((Flow *)a)->tl) {
 				while( eval(((Flow *)a)->cond) != 0){
-					valueDouble = eval(((Flow *)a)->tl);
+					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue;
 					}
 			}
 		break;
-		case '^': valueDouble = pow(eval(a->l), eval(a->r)); break; //carlos
-		case 'L': eval(a->l); valueDouble = eval(a->r); break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
+		case '^':	cont->doubleValue = pow(eval(a->l)->doubleValue, eval(a->r)->doubleValue); 
+					break; //carlos
+		
+		case 'L':	eval(a->l)->doubleValue;
+					cont->doubleValue = eval(a->r)->doubleValue; break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
 		
 		//Impreme uma double
-		case 'P': 	valueDouble = eval(a->l);		/*Recupera um valueDouble*/
-					printf ("%.2f\n", valueDouble);
+		case 'P': 	cont->doubleValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+					printf ("%.2f\n", cont->doubleValue);
 					break;  			/*Função que imprime um valueDouble*/
+		
+		case 'X': 	cont->intergerValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+					printf ("%i\n", cont->intergerValue);
+					break;  
 		// Impreme um a string
 		case 'Y':	
 					v2 = eval2(a->l);		/*Recupera um valueDouble STR*/
@@ -413,7 +429,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 				break;
 				
 	}
-	return valueDouble;
+	return cont;
 }
 
 

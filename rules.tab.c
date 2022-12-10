@@ -90,6 +90,11 @@
 		struct vars * prox;
 	}VARIAVEL;
 
+	typedef struct conteudo{
+		int intergerValue;
+		double doubleValue;
+		char stringValue;
+	}Conteudo;
 	
 	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
 		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
@@ -287,7 +292,7 @@ Ast * newasgn(char name[50], Ast *v) { /*Função para um nó de atribuição*/
 	a->nodetype = '=';
 	strcpy(a->name,name);
 	a->v = v; /*Valor*/
-	//printf ("aqui:%lf\n",((VARIAVEL*)a->v)->valueDouble);
+	//printf ("aqui:%lf\n",((VARIAVEL*)a->v)->doubleValue);
 	return (Ast *)a;
 }
 
@@ -363,21 +368,24 @@ char * eval2(Ast *a) { /*Função que executa operações a partir de um nó*/
 	}
 
 
-double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
+Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*/
+	Conteudo * cont; //= (Conteudo *)malloc(sizeof(Conteudo));
+	Conteudo * cont_aux; // = (Conteudo *)malloc(sizeof(Conteudo));
 	double valueDouble; 
 	char v1[50];
 	char *v2;
 	VARIAVEL * aux1;
 	if(!a) {
 		printf("internal error, null eval");
-		return 0.0;
+		cont->doubleValue = 0.0;
+		return cont;
 	}
 	switch(a->nodetype) {
-		case 'K': valueDouble = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
+		case 'K': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
 		//case 'J': 
 		case 'N': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-			valueDouble = aux1->valueDouble;
+			cont->doubleValue = aux1->valueDouble;
 			break;
 		
 		case 'n':
@@ -386,66 +394,74 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 			valueDouble = aux1->vector[((NameVari *)a)->size];
 			break;
 		
-		case '+': valueDouble = eval(a->l) + eval(a->r); break;	/*Operações "árv esq   +   árv dir"*/
-		case '-': valueDouble = eval(a->l) - eval(a->r); break;	/*Operações*/
-		case '*': valueDouble = eval(a->l) * eval(a->r); break;	/*Operações*/
-		case '/': valueDouble = eval(a->l) / eval(a->r); break; /*Operações*/
-		case 'M': valueDouble = -eval(a->l); break;				/*Operações, número negativo*/
+		case '+': cont->doubleValue = eval(a->l)->doubleValue + eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '-': cont->doubleValue = eval(a->l)->doubleValue - eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '*': cont->doubleValue = eval(a->l)->doubleValue * eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case '/': cont->doubleValue = eval(a->l)->doubleValue / eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
+		case 'M': cont->doubleValue = -eval(a->l)->doubleValue; break;				/*Operações, número negativo*/
 	
-		case '1': valueDouble = (eval(a->l) > eval(a->r))? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
-		case '2': valueDouble = (eval(a->l) < eval(a->r))? 1 : 0; break;
-		case '3': valueDouble = (eval(a->l) != eval(a->r))? 1 : 0; break;
-		case '4': valueDouble = (eval(a->l) == eval(a->r))? 1 : 0; break;
-		case '5': valueDouble = (eval(a->l) >= eval(a->r))? 1 : 0; break;
-		case '6': valueDouble = (eval(a->l) <= eval(a->r))? 1 : 0; break;
+		case '1': cont->doubleValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
+		case '2': cont->doubleValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
+		case '3': cont->doubleValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
+		case '4': cont->doubleValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
+		case '5': cont->doubleValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '6': cont->doubleValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
 		
 		case '=':
-			valueDouble = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
+			cont_aux = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
 			aux = srch(listOfVariavel,((Symasgn *)a)->name);
 			
 			//printf ("AQUI %d\n",((NameVari *)aux)->nodetype);
-			
+			if (aux->nodetype == 1){
+				aux->valueInteger = cont_aux->intergerValue;
+			}
 			if(aux->nodetype == 2){ //lembrar de verificar os demais tipos
-				aux->valueDouble = valueDouble;
-				//printf ("%lf\n",v);
+				aux->valueDouble = cont_aux->doubleValue;
 			}/*
 			if(aux->nodetype == 3){
 				strcpy(aux->valueString, "teste");
 			}*/
 			else
-				aux->vector[((Symasgn *)a)->pos] = valueDouble; //inserção no vetor
+				aux->vector[((Symasgn *)a)->pos] = cont_aux->doubleValue; //inserção no vetor
 			break;
 		
 		case 'I':						/*CASO IF*/
-			if (eval(((Flow *)a)->cond) != 0) {	/*executa a condição / teste*/
+			if (eval(((Flow *)a)->cond)->doubleValue != 0) {	/*executa a condição / teste*/
 				if (((Flow *)a)->tl)		/*Se existir árvore*/
-					valueDouble = eval(((Flow *)a)->tl); /*Verdade*/
+					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue; /*Verdade*/
 				else
 					valueDouble = 0.0;
 			} else {
 				if( ((Flow *)a)->el) {
-					valueDouble = eval(((Flow *)a)->el); /*Falso*/
+					cont->doubleValue = eval(((Flow *)a)->el)->doubleValue; /*Falso*/
 				} else
-					valueDouble = 0.0;
+					cont->doubleValue = 0.0;
 				}
 			break;
 			
 		case 'W':
 			//printf ("WHILE\n");
-			valueDouble = 0.0;
+			cont->doubleValue = 0.0;
 			if( ((Flow *)a)->tl) {
 				while( eval(((Flow *)a)->cond) != 0){
-					valueDouble = eval(((Flow *)a)->tl);
+					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue;
 					}
 			}
 		break;
-		case '^': valueDouble = pow(eval(a->l), eval(a->r)); break; //carlos
-		case 'L': eval(a->l); valueDouble = eval(a->r); break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
+		case '^':	cont->doubleValue = pow(eval(a->l)->doubleValue, eval(a->r)->doubleValue); 
+					break; //carlos
+		
+		case 'L':	eval(a->l)->doubleValue;
+					cont->doubleValue = eval(a->r)->doubleValue; break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
 		
 		//Impreme uma double
-		case 'P': 	valueDouble = eval(a->l);		/*Recupera um valueDouble*/
-					printf ("%.2f\n", valueDouble);
+		case 'P': 	cont->doubleValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+					printf ("%.2f\n", cont->doubleValue);
 					break;  			/*Função que imprime um valueDouble*/
+		
+		case 'X': 	cont->intergerValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+					printf ("%i\n", cont->intergerValue);
+					break;  
 		// Impreme um a string
 		case 'Y':	
 					v2 = eval2(a->l);		/*Recupera um valueDouble STR*/
@@ -482,7 +498,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 				break;
 				
 	}
-	return valueDouble;
+	return cont;
 }
 
 
@@ -492,7 +508,7 @@ void yyerror (char *name){
 }
 
 
-#line 496 "rules.tab.c"
+#line 512 "rules.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -571,7 +587,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 427 "rules.y"
+#line 443 "rules.y"
 
 	float flo;
 	int fn;
@@ -580,7 +596,7 @@ union YYSTYPE
 	Ast *a;
 	
 
-#line 584 "rules.tab.c"
+#line 600 "rules.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -958,10 +974,10 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   453,   453,   456,   457,   463,   464,   465,   467,   468,
-     470,   471,   472,   474,   475,   476,   477,   479,   480,   481,
-     482,   486,   492,   493,   497,   498,   499,   500,   501,   502,
-     503,   504,   505,   506,   507,   508,   513,   514
+       0,   469,   469,   472,   473,   479,   480,   481,   483,   484,
+     486,   487,   488,   490,   491,   492,   493,   495,   496,   497,
+     498,   502,   508,   509,   513,   514,   515,   516,   517,   518,
+     519,   520,   521,   522,   523,   524,   529,   530
 };
 #endif
 
@@ -1819,221 +1835,221 @@ yyreduce:
   switch (yyn)
     {
   case 3:
-#line 456 "rules.y"
+#line 472 "rules.y"
                         {eval((yyvsp[0].a));}
-#line 1825 "rules.tab.c"
+#line 1841 "rules.tab.c"
     break;
 
   case 4:
-#line 457 "rules.y"
+#line 473 "rules.y"
                     {eval((yyvsp[0].a));}
-#line 1831 "rules.tab.c"
+#line 1847 "rules.tab.c"
     break;
 
   case 5:
-#line 463 "rules.y"
+#line 479 "rules.y"
                                             {(yyval.a) = newflow('I', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
-#line 1837 "rules.tab.c"
+#line 1853 "rules.tab.c"
     break;
 
   case 6:
-#line 464 "rules.y"
+#line 480 "rules.y"
                                                         {(yyval.a) = newflow('I', (yyvsp[-8].a), (yyvsp[-5].a), (yyvsp[-1].a));}
-#line 1843 "rules.tab.c"
+#line 1859 "rules.tab.c"
     break;
 
   case 7:
-#line 465 "rules.y"
+#line 481 "rules.y"
                                          {(yyval.a) = newflow('W', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
-#line 1849 "rules.tab.c"
+#line 1865 "rules.tab.c"
     break;
 
   case 8:
-#line 467 "rules.y"
+#line 483 "rules.y"
                                      { (yyval.a) = newasgn((yyvsp[-2].str),(yyvsp[0].a));}
-#line 1855 "rules.tab.c"
+#line 1871 "rules.tab.c"
     break;
 
   case 9:
-#line 468 "rules.y"
+#line 484 "rules.y"
                                  {(yyval.a) = newasgn_a((yyvsp[-5].str),(yyvsp[0].a),(yyvsp[-3].flo));}
-#line 1861 "rules.tab.c"
+#line 1877 "rules.tab.c"
     break;
 
   case 10:
-#line 470 "rules.y"
+#line 486 "rules.y"
                                                 { (yyval.a) = newVari('E',(yyvsp[0].str));}
-#line 1867 "rules.tab.c"
+#line 1883 "rules.tab.c"
     break;
 
   case 11:
-#line 471 "rules.y"
+#line 487 "rules.y"
                                                 { (yyval.a) = newVari('V',(yyvsp[0].str));}
-#line 1873 "rules.tab.c"
+#line 1889 "rules.tab.c"
     break;
 
   case 12:
-#line 472 "rules.y"
+#line 488 "rules.y"
                                                 { (yyval.a) = newVari('G',(yyvsp[0].str));}
-#line 1879 "rules.tab.c"
+#line 1895 "rules.tab.c"
     break;
 
   case 13:
-#line 474 "rules.y"
+#line 490 "rules.y"
                                 { (yyval.a) = newarray('A',(yyvsp[-3].str),(yyvsp[-1].flo));}
-#line 1885 "rules.tab.c"
+#line 1901 "rules.tab.c"
     break;
 
   case 14:
-#line 475 "rules.y"
+#line 491 "rules.y"
                               { (yyval.a) = newast('Q',(yyvsp[-1].a),NULL);}
-#line 1891 "rules.tab.c"
+#line 1907 "rules.tab.c"
     break;
 
   case 15:
-#line 476 "rules.y"
+#line 492 "rules.y"
                                                 {(yyval.a) = newast('X',(yyvsp[-3].a),NULL);}
-#line 1897 "rules.tab.c"
+#line 1913 "rules.tab.c"
     break;
 
   case 16:
-#line 477 "rules.y"
+#line 493 "rules.y"
                                                 {(yyval.a) = newast('P',(yyvsp[-3].a),NULL);}
-#line 1903 "rules.tab.c"
+#line 1919 "rules.tab.c"
     break;
 
   case 17:
-#line 479 "rules.y"
+#line 495 "rules.y"
                                 {(yyval.a) = newast('Y',(yyvsp[-1].a),NULL);}
-#line 1909 "rules.tab.c"
+#line 1925 "rules.tab.c"
     break;
 
   case 18:
-#line 480 "rules.y"
+#line 496 "rules.y"
                                         {(yyval.a) = newVari('S',(yyvsp[-1].str));}
-#line 1915 "rules.tab.c"
+#line 1931 "rules.tab.c"
     break;
 
   case 19:
-#line 481 "rules.y"
+#line 497 "rules.y"
                                         {(yyval.a) = newVari('T',(yyvsp[-1].str));}
-#line 1921 "rules.tab.c"
-    break;
-
-  case 20:
-#line 483 "rules.y"
-                {
-			(yyval.a) = newasgn((yyvsp[-1].str), newast('+', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
-		}
-#line 1929 "rules.tab.c"
-    break;
-
-  case 21:
-#line 487 "rules.y"
-                {
-			(yyval.a) = newasgn((yyvsp[-1].str), newast('-', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
-		}
 #line 1937 "rules.tab.c"
     break;
 
+  case 20:
+#line 499 "rules.y"
+                {
+			(yyval.a) = newasgn((yyvsp[-1].str), newast('+', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
+		}
+#line 1945 "rules.tab.c"
+    break;
+
+  case 21:
+#line 503 "rules.y"
+                {
+			(yyval.a) = newasgn((yyvsp[-1].str), newast('-', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
+		}
+#line 1953 "rules.tab.c"
+    break;
+
   case 22:
-#line 492 "rules.y"
+#line 508 "rules.y"
            {(yyval.a) = (yyvsp[0].a);}
-#line 1943 "rules.tab.c"
+#line 1959 "rules.tab.c"
     break;
 
   case 23:
-#line 493 "rules.y"
+#line 509 "rules.y"
                             { (yyval.a) = newast('L', (yyvsp[-1].a), (yyvsp[0].a));	}
-#line 1949 "rules.tab.c"
+#line 1965 "rules.tab.c"
     break;
 
   case 24:
-#line 497 "rules.y"
+#line 513 "rules.y"
                      {(yyval.a) = newast('+',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1955 "rules.tab.c"
+#line 1971 "rules.tab.c"
     break;
 
   case 25:
-#line 498 "rules.y"
+#line 514 "rules.y"
                      {(yyval.a) = newast('-',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1961 "rules.tab.c"
+#line 1977 "rules.tab.c"
     break;
 
   case 26:
-#line 499 "rules.y"
+#line 515 "rules.y"
                      {(yyval.a) = newast('*',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1967 "rules.tab.c"
+#line 1983 "rules.tab.c"
     break;
 
   case 27:
-#line 500 "rules.y"
+#line 516 "rules.y"
                      {(yyval.a) = newast('/',(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1973 "rules.tab.c"
+#line 1989 "rules.tab.c"
     break;
 
   case 28:
-#line 501 "rules.y"
+#line 517 "rules.y"
                      {(yyval.a) = newcmp((yyvsp[-1].fn),(yyvsp[-2].a),(yyvsp[0].a));}
-#line 1979 "rules.tab.c"
+#line 1995 "rules.tab.c"
     break;
 
   case 29:
-#line 502 "rules.y"
+#line 518 "rules.y"
                      {(yyval.a) = (yyvsp[-1].a);}
-#line 1985 "rules.tab.c"
+#line 2001 "rules.tab.c"
     break;
 
   case 30:
-#line 503 "rules.y"
+#line 519 "rules.y"
                            {(yyval.a) = newast('M',(yyvsp[0].a),NULL);}
-#line 1991 "rules.tab.c"
+#line 2007 "rules.tab.c"
     break;
 
   case 31:
-#line 504 "rules.y"
+#line 520 "rules.y"
              {(yyval.a) = newNum((yyvsp[0].flo));}
-#line 1997 "rules.tab.c"
+#line 2013 "rules.tab.c"
     break;
 
   case 32:
-#line 505 "rules.y"
+#line 521 "rules.y"
                 {(yyval.a) = newString((yyvsp[0].str));}
-#line 2003 "rules.tab.c"
+#line 2019 "rules.tab.c"
     break;
 
   case 33:
-#line 506 "rules.y"
+#line 522 "rules.y"
                           {(yyval.a) = newast('^', (yyvsp[-2].a), (yyvsp[0].a));}
-#line 2009 "rules.tab.c"
+#line 2025 "rules.tab.c"
     break;
 
   case 34:
-#line 507 "rules.y"
+#line 523 "rules.y"
                           {(yyval.a) = newValorVal((yyvsp[0].str));}
-#line 2015 "rules.tab.c"
+#line 2031 "rules.tab.c"
     break;
 
   case 35:
-#line 508 "rules.y"
+#line 524 "rules.y"
                         {(yyval.a) = newValorVal_a((yyvsp[-3].str),(yyvsp[-1].flo));}
-#line 2021 "rules.tab.c"
+#line 2037 "rules.tab.c"
     break;
 
   case 36:
-#line 513 "rules.y"
+#line 529 "rules.y"
               {(yyval.a) = newValorValS((yyvsp[0].str));}
-#line 2027 "rules.tab.c"
+#line 2043 "rules.tab.c"
     break;
 
   case 37:
-#line 514 "rules.y"
+#line 530 "rules.y"
                  {(yyval.a) = newString((yyvsp[0].str));}
-#line 2033 "rules.tab.c"
+#line 2049 "rules.tab.c"
     break;
 
 
-#line 2037 "rules.tab.c"
+#line 2053 "rules.tab.c"
 
       default: break;
     }
@@ -2265,7 +2281,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 516 "rules.y"
+#line 532 "rules.y"
 
 
 #include "lex.yy.c"
