@@ -472,7 +472,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 
 	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
-	| PRINT '(' exp ')' 	{$$ = newast('P',$3,NULL);}
+	| PRINT '(' exp ',' TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
 	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}
 	| SCAN '('VARS')'		{$$ = newVari('S',$3);}
 	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
