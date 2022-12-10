@@ -20,6 +20,7 @@
 		double *vector;	 // Ponteiro para um vetor de double
 		struct vars * prox;
 	}VARIAVEL;
+
 	
 	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
 		VARIAVEL*new =(VARIAVEL*)malloc(sizeof(VARIAVEL));
@@ -74,10 +75,10 @@ typedef struct ast { /*Estrutura de um nó*/
 	struct ast *r; /*Direita*/
 }Ast; 
 
-typedef struct numVal { /*Estrutura de um número*/
+typedef struct flwVal { /*Estrutura de um número*/
 	int nodetype;
 	double value;
-}NumVal;
+}FlwVal;
 
 typedef struct intVal { /*Estrutura de um número*/
 	int nodetype;
@@ -151,7 +152,7 @@ Ast * newarray(int nodetype, char nome[50], int tam) {			/*Função de que cria 
 
 	
 Ast * newNum(double value) {			/*Função de que cria um novo número*/
-	NumVal *a = (NumVal*) malloc(sizeof(NumVal));
+	FlwVal *a = (FlwVal*) malloc(sizeof(FlwVal));
 	if(!a) {
 		printf("out of space");
 		exit(0);
@@ -303,7 +304,7 @@ double eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 		return 0.0;
 	}
 	switch(a->nodetype) {
-		case 'K': valueDouble = ((NumVal *)a)->value; break; 	/*Recupera um número*/
+		case 'K': valueDouble = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
 		//case 'J': 
 		case 'N': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
@@ -472,7 +473,9 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 
 	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
+	| PRINT '(' exp SEPARADOR TYPEINT ')' 	{$$ = newast('X',$3,NULL);}
 	| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
+	//| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
 	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}
 	| SCAN '('VARS')'		{$$ = newVari('S',$3);}
 	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
