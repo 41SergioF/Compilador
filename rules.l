@@ -68,7 +68,7 @@ TYPESTR "Str"
 
 
 
-[-+()=/*^{};\[\]] {return *yytext;
+[-+()=/*^{};\[\]:] {return *yytext;
 			}
 			
 
