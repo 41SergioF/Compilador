@@ -1,10 +1,5 @@
-START
+START_PROG
 
-	var Int a
-	var Flw b
-	var Str c
+	
 
-	b = 10
-	Out(b, Flw)
-
-END
+END_PROG

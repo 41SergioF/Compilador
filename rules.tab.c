@@ -459,7 +459,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 					printf ("%.2f\n", cont->doubleValue);
 					break;  			/*Função que imprime um valueDouble*/
 		
-		case 'X': 	cont->intergerValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+		case 'X': 	cont->intergerValue = eval(a->l)->intergerValue;		/*Recupera um valueDouble*/
 					printf ("%i\n", cont->intergerValue);
 					break;  
 		// Impreme um a string
