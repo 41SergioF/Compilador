@@ -93,7 +93,8 @@
 	typedef struct conteudo{
 		int intergerValue;
 		double doubleValue;
-		char stringValue;
+		char stringValue[50];
+		int booleanValue;
 	}Conteudo;
 	
 	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
@@ -224,8 +225,18 @@ Ast * newarray(int nodetype, char nome[50], int tam) {			/*Função de que cria 
 	return (Ast*)a;
 }	
 
+Ast * newInterger(int value) { /*Função de que cria uma nova string*/
+	IntVal *a = (IntVal*) malloc(sizeof(IntVal));
+	if(!a) {
+		printf("out of space");
+		exit(0);
+	}
+	a->nodetype = 'R';
+	a->value = value;
+	return (Ast*)a;
+}
 	
-Ast * newNum(double value) {			/*Função de que cria um novo número*/
+Ast * newFloat(double value) {			/*Função de que cria um novo número*/
 	FlwVal *a = (FlwVal*) malloc(sizeof(FlwVal));
 	if(!a) {
 		printf("out of space");
@@ -244,17 +255,6 @@ Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 	}
 	a->nodetype = 'J';
 	strcpy(a->value, str);
-	return (Ast*)a;
-}
-
-Ast * newInterger(int value) { /*Função de que cria uma nova string*/
-	IntVal *a = (IntVal*) malloc(sizeof(IntVal));
-	if(!a) {
-		printf("out of space");
-		exit(0);
-	}
-	a->nodetype = 'R';
-	a->value = value;
 	return (Ast*)a;
 }
 
@@ -317,7 +317,7 @@ Ast * newValorVal(char name[]) { /*Função que recupera o nome/referência de u
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'N';
+	a->nodetype = 'V';
 	strcpy(a->name,name);
 	return (Ast*)a;
 }
@@ -328,7 +328,7 @@ Ast * newValorVal_a(char name[], int indice) { /*Função que recupera o nome/re
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'n';
+	a->nodetype = 'v';
 	strcpy(a->name,name);
 	a->size = indice;
 	
@@ -348,25 +348,6 @@ Ast * newValorValS(char name[50]) { /*Função que recupera o nome/referência d
 	
 }
 
-	
-char * eval2(Ast *a) { /*Função que executa operações a partir de um nó*/
-		VARIAVEL *aux1;
-		char *v2;
-		
-			switch(a->nodetype) {
-			
-			case 'Q':
-				aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-				return aux1->valueString;
-				break;
-
-			default: printf("internal error: bad node %c\n", a->nodetype);
-					break;
-		}
-		
-	return v2;
-	}
-
 
 Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	Conteudo * cont; //= (Conteudo *)malloc(sizeof(Conteudo));
@@ -383,12 +364,12 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 	switch(a->nodetype) {
 		case 'K': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
 		//case 'J': 
-		case 'N': 
+		case 'V': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 			cont->doubleValue = aux1->valueDouble;
 			break;
 		
-		case 'n':
+		case 'v':
 			
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 			valueDouble = aux1->vector[((NameVari *)a)->size];
@@ -400,12 +381,12 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case '/': cont->doubleValue = eval(a->l)->doubleValue / eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
 		case 'M': cont->doubleValue = -eval(a->l)->doubleValue; break;				/*Operações, número negativo*/
 	
-		case '1': cont->doubleValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
-		case '2': cont->doubleValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
-		case '3': cont->doubleValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
-		case '4': cont->doubleValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
-		case '5': cont->doubleValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
-		case '6': cont->doubleValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '1': cont->booleanValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
+		case '2': cont->booleanValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
+		case '3': cont->booleanValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
+		case '4': cont->booleanValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
+		case '5': cont->booleanValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '6': cont->booleanValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
 		
 		case '=':
 			cont_aux = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
@@ -417,15 +398,15 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 			}
 			if(aux->nodetype == 2){ //lembrar de verificar os demais tipos
 				aux->valueDouble = cont_aux->doubleValue;
-			}/*
+			}
 			if(aux->nodetype == 3){
-				strcpy(aux->valueString, "teste");
-			}*/
+				strcpy(aux->valueString, cont->stringValue);
+			}
 			else
 				aux->vector[((Symasgn *)a)->pos] = cont_aux->doubleValue; //inserção no vetor
 			break;
 		
-		case 'I':						/*CASO IF*/
+		case 'E':						/*CASO IF*/
 			if (eval(((Flow *)a)->cond)->doubleValue != 0) {	/*executa a condição / teste*/
 				if (((Flow *)a)->tl)		/*Se existir árvore*/
 					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue; /*Verdade*/
@@ -451,29 +432,36 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case '^':	cont->doubleValue = pow(eval(a->l)->doubleValue, eval(a->r)->doubleValue); 
 					break; //carlos
 		
-		case 'L':	eval(a->l)->doubleValue;
+		case 'B':	eval(a->l)->doubleValue;
 					cont->doubleValue = eval(a->r)->doubleValue; break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
 		
-		//Impreme uma double
-		case 'P': 	cont->doubleValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+		/*
+			Impressão de tipos
+		*/
+		case 'N': 	cont->doubleValue = eval(a->l)->doubleValue;			/*Recupera um valueDouble*/
 					printf ("%.2f\n", cont->doubleValue);
-					break;  			/*Função que imprime um valueDouble*/
+					break;  			
 		
-		case 'X': 	cont->intergerValue = eval(a->l)->intergerValue;		/*Recupera um valueDouble*/
+		case 'L': 	cont->intergerValue = eval(a->l)->intergerValue;		/*Recupera um valueDouble*/
 					printf ("%i\n", cont->intergerValue);
-					break;  
-		// Impreme um a string
-		case 'Y':	
-					v2 = eval2(a->l);		/*Recupera um valueDouble STR*/
-					printf ("%s\n",v2); break;  /*Função que imprime um valueDouble (string)*/
 					break;
-
-		case 'S': 	scanf("%lf", &valueDouble);
+		
+		case 'T': 	strcpy(cont->stringValue, eval(a->l)->stringValue);		/*Recupera um valueDouble*/
+					printf ("%s\n", cont->stringValue);
+					break;  			
+		
+//---------------------
+		case 'n': 	scanf("%lf", &valueDouble);
 					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 					aux1->valueDouble = valueDouble;
 					break;
 		
-		case 'T': 	scanf("%s", v1);
+		case 'l': 	scanf("%s", v1);
+					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
+					strcpy(aux1->valueString,v1);
+					break;
+		
+		case 't': 	scanf("%s", v1);
 					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 					strcpy(aux1->valueString,v1);
 					break;			
@@ -482,14 +470,18 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 					printf("%s\n", ((StrVal *)a->l)->value);
 					break;
 					
-		case 'V': 	listOfVariavel = insert_vari_float(listOfVariavel,((NameVari*)a)->name);
-					break;
-		case 'E': 
+		case 'I': 
 					listOfVariavel = insert_vari_int(listOfVariavel,((NameVari*)a)->name);
 					break;
-		case 'G': 
+
+		case 'F': 	
+					listOfVariavel = insert_vari_float(listOfVariavel,((NameVari*)a)->name);
+					break;
+
+		case 'S': 
 					listOfVariavel = insert_vari_str(listOfVariavel,((NameVari*)a)->name);
 					break;
+
 		case 'A':	
 					listOfVariavel = insert_array(listOfVariavel,((NameVari*)a)->name,((NameVari*)a)->size);
 					break;
@@ -508,7 +500,7 @@ void yyerror (char *name){
 }
 
 
-#line 512 "rules.tab.c"
+#line 504 "rules.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -587,7 +579,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 443 "rules.y"
+#line 435 "rules.y"
 
 	float flo;
 	int fn;
@@ -596,7 +588,7 @@ union YYSTYPE
 	Ast *a;
 	
 
-#line 600 "rules.tab.c"
+#line 592 "rules.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -915,16 +907,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   158
+#define YYLAST   165
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  42
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  7
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  37
+#define YYNRULES  40
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  96
+#define YYNSTATES  104
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   284
@@ -974,10 +966,11 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   469,   469,   472,   473,   479,   480,   481,   483,   484,
-     486,   487,   488,   490,   491,   492,   493,   495,   496,   497,
-     498,   502,   508,   509,   513,   514,   515,   516,   517,   518,
-     519,   520,   521,   522,   523,   524,   529,   530
+       0,   461,   461,   464,   465,   471,   472,   473,   475,   476,
+     478,   479,   480,   482,   483,   485,   486,   487,   489,   490,
+     491,   493,   494,   495,   499,   505,   506,   510,   511,   512,
+     513,   514,   515,   516,   517,   518,   519,   520,   521,   526,
+     527
 };
 #endif
 
@@ -1008,7 +1001,7 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-66)
+#define YYPACT_NINF (-75)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -1022,16 +1015,17 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      23,   119,    43,    -8,    19,    25,    33,    35,    67,    38,
-      45,    46,   106,   -66,   -66,   -66,   -66,     3,    69,     3,
-       3,     3,     0,     1,    78,     0,    84,   -66,   -66,   -66,
-      44,   -66,     3,     3,   123,    59,    50,    68,   117,   -66,
-     -66,    54,    88,     5,    64,    65,    66,   108,    90,    79,
-       3,     3,     3,     3,     3,     3,    87,    89,    91,    36,
-     -66,    85,   -66,   -66,   -66,   -66,   -66,   -66,    97,   -66,
-     123,    90,   129,   129,    20,    20,     3,   119,   119,   102,
-     103,   -66,   -66,   123,   -66,     8,    37,   -66,   -66,   115,
-     -66,   -66,   118,   119,    51,   -66
+       7,   119,     5,    -8,   -10,    -6,    19,    22,    36,    24,
+      26,    35,   106,   -75,   -75,   -75,   -75,     3,    88,     3,
+       3,     3,    38,   -13,    89,    38,    95,   -75,   -75,   -75,
+      16,   -75,     3,     3,   123,    62,    50,    68,   117,   -75,
+     -75,    64,   108,    51,    86,    76,    90,   121,   109,    79,
+       3,     3,     3,     3,     3,     3,   100,   101,   102,    60,
+     -75,    97,   -75,   -75,   -75,    63,   -75,   -75,   114,   -75,
+     123,   109,   129,   129,    20,    20,     3,   119,   119,   120,
+     124,   125,   -75,   126,   127,   128,   -75,   123,   -75,     8,
+      37,   -75,   -75,   -75,   -75,   -75,   -75,   146,   -75,   -75,
+     122,   119,    52,   -75
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -1040,27 +1034,28 @@ static const yytype_int16 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     3,     1,    20,    21,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     2,     4,    31,
-      34,    32,     0,     0,     8,     0,     0,     0,     0,    36,
-      37,     0,     0,     0,     0,     0,     0,     0,    30,     0,
+       0,     0,     0,     3,     1,    23,    24,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     2,     4,    34,
+      37,    35,     0,     0,     8,     0,     0,     0,     0,    39,
+      40,     0,     0,     0,     0,     0,     0,     0,    33,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      14,     0,    11,    10,    12,    18,    17,    19,     0,    29,
-      33,    28,    24,    25,    26,    27,     0,     0,     0,     0,
-       0,    13,    35,     9,    22,     0,     0,    16,    15,     5,
-      23,     7,     0,     0,     0,     6
+      14,     0,    11,    10,    12,     0,    21,    22,     0,    32,
+      36,    31,    27,    28,    29,    30,     0,     0,     0,     0,
+       0,     0,    13,     0,     0,     0,    38,     9,    25,     0,
+       0,    16,    15,    17,    19,    18,    20,     5,    26,     7,
+       0,     0,     0,     6
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -66,   -66,   -66,    -1,   -65,   -18,   131
+     -75,   -75,   -75,    -1,   -74,   -18,   140
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,    12,    84,    85,    34,    41
+      -1,     2,    12,    88,    89,    34,    41
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -1068,42 +1063,44 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      13,    36,    37,    38,    39,    40,    29,    30,    31,    15,
-      16,    28,     3,    86,    48,    49,     4,    17,     5,     6,
-       7,     8,     9,    10,    11,    62,    63,    64,    94,     1,
+      13,    36,    37,    38,    90,    14,    29,    30,    31,    15,
+      16,    28,     3,     1,    48,    49,     4,    17,     5,     6,
+       7,     8,     9,    10,    11,    19,    42,   102,    43,    20,
       32,    18,    70,    71,    72,    73,    74,    75,    33,    50,
-      42,     3,    43,    14,    51,     4,    89,     5,     6,     7,
-       8,     9,    10,    11,    19,     3,    79,    80,    83,     4,
-      20,     5,     6,     7,     8,     9,    10,    11,    21,    50,
-      22,    23,    35,    24,    51,    91,    52,    53,    54,    55,
-      25,    26,    44,    47,    90,    90,    57,    50,    46,    95,
-      60,    61,    51,    90,    52,    53,    54,    55,    50,    56,
-      65,    66,    67,    51,    58,    52,    53,    54,    55,    50,
-       3,    68,    76,    27,     4,    69,     5,     6,     7,     8,
-       9,    10,    11,     3,    92,    81,    77,     4,    78,     5,
-       6,     7,     8,     9,    10,    11,    50,    82,    87,    88,
+      23,     3,    39,    40,    51,     4,    97,     5,     6,     7,
+       8,     9,    10,    11,    21,    47,     3,    22,    87,    24,
+       4,    25,     5,     6,     7,     8,     9,    10,    11,    50,
+      26,    62,    63,    64,    51,    99,    52,    53,    54,    55,
+      79,    80,    81,    83,    84,    85,    57,    50,    98,    98,
+     103,    35,    51,    44,    52,    53,    54,    55,    50,    46,
+      60,    98,    56,    51,    58,    52,    53,    54,    55,    65,
+       3,    61,    66,    27,     4,    69,     5,     6,     7,     8,
+       9,    10,    11,     3,    68,    76,    67,     4,    50,     5,
+       6,     7,     8,     9,    10,    11,    50,    82,    77,    78,
       59,    51,    50,    52,    53,    54,    55,    51,    50,    52,
-      53,    54,    55,    51,     0,    93,    45,    54,    55
+      53,    54,    55,    51,    86,   100,    91,    54,    55,   101,
+      92,    93,    94,    95,    96,    45
 };
 
 static const yytype_int8 yycheck[] =
 {
-       1,    19,    20,    21,     4,     5,     3,     4,     5,    17,
-      18,    12,     4,    78,    32,    33,     8,    25,    10,    11,
-      12,    13,    14,    15,    16,    20,    21,    22,    93,     6,
+       1,    19,    20,    21,    78,     0,     3,     4,     5,    17,
+      18,    12,     4,     6,    32,    33,     8,    25,    10,    11,
+      12,    13,    14,    15,    16,    35,    39,   101,    41,    35,
       27,    39,    50,    51,    52,    53,    54,    55,    35,    19,
-      39,     4,    41,     0,    24,     8,    38,    10,    11,    12,
-      13,    14,    15,    16,    35,     4,    20,    21,    76,     8,
-      35,    10,    11,    12,    13,    14,    15,    16,    35,    19,
-      35,     4,     3,    35,    24,    38,    26,    27,    28,    29,
-      35,    35,     4,    39,    85,    86,    36,    19,     4,    38,
-      36,     3,    24,    94,    26,    27,    28,    29,    19,    40,
-      36,    36,    36,    24,    36,    26,    27,    28,    29,    19,
-       4,     3,    25,     7,     8,    36,    10,    11,    12,    13,
-      14,    15,    16,     4,     9,    40,    37,     8,    37,    10,
-      11,    12,    13,    14,    15,    16,    19,    40,    36,    36,
+       4,     4,     4,     5,    24,     8,    38,    10,    11,    12,
+      13,    14,    15,    16,    35,    39,     4,    35,    76,    35,
+       8,    35,    10,    11,    12,    13,    14,    15,    16,    19,
+      35,    20,    21,    22,    24,    38,    26,    27,    28,    29,
+      20,    21,    22,    20,    21,    22,    36,    19,    89,    90,
+      38,     3,    24,     4,    26,    27,    28,    29,    19,     4,
+      36,   102,    40,    24,    36,    26,    27,    28,    29,    23,
+       4,     3,    36,     7,     8,    36,    10,    11,    12,    13,
+      14,    15,    16,     4,     3,    25,    36,     8,    19,    10,
+      11,    12,    13,    14,    15,    16,    19,    40,    37,    37,
       23,    24,    19,    26,    27,    28,    29,    24,    19,    26,
-      27,    28,    29,    24,    -1,    37,    25,    28,    29
+      27,    28,    29,    24,    40,     9,    36,    28,    29,    37,
+      36,    36,    36,    36,    36,    25
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -1116,10 +1113,11 @@ static const yytype_int8 yystos[] =
        4,     5,    27,    35,    47,     3,    47,    47,    47,     4,
        5,    48,    39,    41,     4,    48,     4,    39,    47,    47,
       19,    24,    26,    27,    28,    29,    40,    36,    36,    23,
-      36,     3,    20,    21,    22,    36,    36,    36,     3,    36,
+      36,     3,    20,    21,    22,    23,    36,    36,     3,    36,
       47,    47,    47,    47,    47,    47,    25,    37,    37,    20,
-      21,    40,    40,    47,    45,    46,    46,    36,    36,    38,
-      45,    38,     9,    37,    46,    38
+      21,    22,    40,    20,    21,    22,    40,    47,    45,    46,
+      46,    36,    36,    36,    36,    36,    36,    38,    45,    38,
+       9,    37,    46,    38
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -1127,17 +1125,19 @@ static const yytype_int8 yyr1[] =
 {
        0,    42,    43,    44,    44,    45,    45,    45,    45,    45,
       45,    45,    45,    45,    45,    45,    45,    45,    45,    45,
-      45,    45,    46,    46,    47,    47,    47,    47,    47,    47,
-      47,    47,    47,    47,    47,    47,    48,    48
+      45,    45,    45,    45,    45,    46,    46,    47,    47,    47,
+      47,    47,    47,    47,    47,    47,    47,    47,    47,    48,
+      48
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     3,     1,     2,     7,    11,     7,     3,     6,
-       4,     4,     4,     5,     4,     6,     6,     4,     4,     4,
-       2,     2,     1,     2,     3,     3,     3,     3,     3,     3,
-       2,     1,     1,     3,     1,     4,     1,     1
+       4,     4,     4,     5,     4,     6,     6,     6,     6,     6,
+       6,     4,     4,     2,     2,     1,     2,     3,     3,     3,
+       3,     3,     3,     2,     1,     1,     3,     1,     4,     1,
+       1
 };
 
 
@@ -1833,221 +1833,239 @@ yyreduce:
   switch (yyn)
     {
   case 3:
-#line 472 "rules.y"
+#line 464 "rules.y"
                         {eval((yyvsp[0].a));}
 #line 1839 "rules.tab.c"
     break;
 
   case 4:
-#line 473 "rules.y"
+#line 465 "rules.y"
                     {eval((yyvsp[0].a));}
 #line 1845 "rules.tab.c"
     break;
 
   case 5:
-#line 479 "rules.y"
-                                            {(yyval.a) = newflow('I', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
+#line 471 "rules.y"
+                                            {(yyval.a) = newflow('E', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
 #line 1851 "rules.tab.c"
     break;
 
   case 6:
-#line 480 "rules.y"
-                                                        {(yyval.a) = newflow('I', (yyvsp[-8].a), (yyvsp[-5].a), (yyvsp[-1].a));}
+#line 472 "rules.y"
+                                                        {(yyval.a) = newflow('E', (yyvsp[-8].a), (yyvsp[-5].a), (yyvsp[-1].a));}
 #line 1857 "rules.tab.c"
     break;
 
   case 7:
-#line 481 "rules.y"
+#line 473 "rules.y"
                                          {(yyval.a) = newflow('W', (yyvsp[-4].a), (yyvsp[-1].a), NULL);}
 #line 1863 "rules.tab.c"
     break;
 
   case 8:
-#line 483 "rules.y"
+#line 475 "rules.y"
                                      { (yyval.a) = newasgn((yyvsp[-2].str),(yyvsp[0].a));}
 #line 1869 "rules.tab.c"
     break;
 
   case 9:
-#line 484 "rules.y"
+#line 476 "rules.y"
                                  {(yyval.a) = newasgn_a((yyvsp[-5].str),(yyvsp[0].a),(yyvsp[-3].flo));}
 #line 1875 "rules.tab.c"
     break;
 
   case 10:
-#line 486 "rules.y"
-                                                { (yyval.a) = newVari('E',(yyvsp[-2].str));}
+#line 478 "rules.y"
+                                                { (yyval.a) = newVari('I',(yyvsp[-2].str));}
 #line 1881 "rules.tab.c"
     break;
 
   case 11:
-#line 487 "rules.y"
-                                                { (yyval.a) = newVari('V',(yyvsp[-2].str));}
+#line 479 "rules.y"
+                                                { (yyval.a) = newVari('F',(yyvsp[-2].str));}
 #line 1887 "rules.tab.c"
     break;
 
   case 12:
-#line 488 "rules.y"
-                                                { (yyval.a) = newVari('G',(yyvsp[-2].str));}
+#line 480 "rules.y"
+                                                { (yyval.a) = newVari('S',(yyvsp[-2].str));}
 #line 1893 "rules.tab.c"
     break;
 
   case 13:
-#line 490 "rules.y"
+#line 482 "rules.y"
                                 { (yyval.a) = newarray('A',(yyvsp[-3].str),(yyvsp[-1].flo));}
 #line 1899 "rules.tab.c"
     break;
 
   case 14:
-#line 491 "rules.y"
+#line 483 "rules.y"
                               { (yyval.a) = newast('Q',(yyvsp[-1].a),NULL);}
 #line 1905 "rules.tab.c"
     break;
 
   case 15:
-#line 492 "rules.y"
-                                                {(yyval.a) = newast('X',(yyvsp[-3].a),NULL);}
+#line 485 "rules.y"
+                                                {(yyval.a) = newast('N',(yyvsp[-3].a),NULL);}
 #line 1911 "rules.tab.c"
     break;
 
   case 16:
-#line 493 "rules.y"
-                                                {(yyval.a) = newast('P',(yyvsp[-3].a),NULL);}
+#line 486 "rules.y"
+                                                {(yyval.a) = newast('L',(yyvsp[-3].a),NULL);}
 #line 1917 "rules.tab.c"
     break;
 
   case 17:
-#line 495 "rules.y"
-                                {(yyval.a) = newast('Y',(yyvsp[-1].a),NULL);}
+#line 487 "rules.y"
+                                                {(yyval.a) = newast('T',(yyvsp[-3].a),NULL);}
 #line 1923 "rules.tab.c"
     break;
 
   case 18:
-#line 496 "rules.y"
-                                        {(yyval.a) = newVari('S',(yyvsp[-1].str));}
+#line 489 "rules.y"
+                                                        {(yyval.a) = newVari('n',(yyvsp[-3].str));}
 #line 1929 "rules.tab.c"
     break;
 
   case 19:
-#line 497 "rules.y"
-                                        {(yyval.a) = newVari('T',(yyvsp[-1].str));}
+#line 490 "rules.y"
+                                                        {(yyval.a) = newVari('l',(yyvsp[-3].str));}
 #line 1935 "rules.tab.c"
     break;
 
   case 20:
-#line 499 "rules.y"
-                {
-			(yyval.a) = newasgn((yyvsp[-1].str), newast('+', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
-		}
-#line 1943 "rules.tab.c"
+#line 491 "rules.y"
+                                                        {(yyval.a) = newVari('t',(yyvsp[-3].str));}
+#line 1941 "rules.tab.c"
     break;
 
   case 21:
-#line 503 "rules.y"
-                {
-			(yyval.a) = newasgn((yyvsp[-1].str), newast('-', newValorVal((yyvsp[-1].str)), newNum(1.0))); 
-		}
-#line 1951 "rules.tab.c"
+#line 493 "rules.y"
+                                {(yyval.a) = newast('Y',(yyvsp[-1].a),NULL);}
+#line 1947 "rules.tab.c"
     break;
 
   case 22:
-#line 508 "rules.y"
-           {(yyval.a) = (yyvsp[0].a);}
-#line 1957 "rules.tab.c"
+#line 494 "rules.y"
+                                        {(yyval.a) = newVari('T',(yyvsp[-1].str));}
+#line 1953 "rules.tab.c"
     break;
 
   case 23:
-#line 509 "rules.y"
-                            { (yyval.a) = newast('L', (yyvsp[-1].a), (yyvsp[0].a));	}
-#line 1963 "rules.tab.c"
+#line 496 "rules.y"
+                {
+			(yyval.a) = newasgn((yyvsp[-1].str), newast('+', newValorVal((yyvsp[-1].str)), newFloat(1.0))); 
+		}
+#line 1961 "rules.tab.c"
     break;
 
   case 24:
-#line 513 "rules.y"
-                     {(yyval.a) = newast('+',(yyvsp[-2].a),(yyvsp[0].a));}
+#line 500 "rules.y"
+                {
+			(yyval.a) = newasgn((yyvsp[-1].str), newast('-', newValorVal((yyvsp[-1].str)), newFloat(1.0))); 
+		}
 #line 1969 "rules.tab.c"
     break;
 
   case 25:
-#line 514 "rules.y"
-                     {(yyval.a) = newast('-',(yyvsp[-2].a),(yyvsp[0].a));}
+#line 505 "rules.y"
+           {(yyval.a) = (yyvsp[0].a);}
 #line 1975 "rules.tab.c"
     break;
 
   case 26:
-#line 515 "rules.y"
-                     {(yyval.a) = newast('*',(yyvsp[-2].a),(yyvsp[0].a));}
+#line 506 "rules.y"
+                            { (yyval.a) = newast('B', (yyvsp[-1].a), (yyvsp[0].a));	}
 #line 1981 "rules.tab.c"
     break;
 
   case 27:
-#line 516 "rules.y"
-                     {(yyval.a) = newast('/',(yyvsp[-2].a),(yyvsp[0].a));}
+#line 510 "rules.y"
+                     {(yyval.a) = newast('+',(yyvsp[-2].a),(yyvsp[0].a));}
 #line 1987 "rules.tab.c"
     break;
 
   case 28:
-#line 517 "rules.y"
-                     {(yyval.a) = newcmp((yyvsp[-1].fn),(yyvsp[-2].a),(yyvsp[0].a));}
+#line 511 "rules.y"
+                     {(yyval.a) = newast('-',(yyvsp[-2].a),(yyvsp[0].a));}
 #line 1993 "rules.tab.c"
     break;
 
   case 29:
-#line 518 "rules.y"
-                     {(yyval.a) = (yyvsp[-1].a);}
+#line 512 "rules.y"
+                     {(yyval.a) = newast('*',(yyvsp[-2].a),(yyvsp[0].a));}
 #line 1999 "rules.tab.c"
     break;
 
   case 30:
-#line 519 "rules.y"
-                           {(yyval.a) = newast('M',(yyvsp[0].a),NULL);}
+#line 513 "rules.y"
+                     {(yyval.a) = newast('/',(yyvsp[-2].a),(yyvsp[0].a));}
 #line 2005 "rules.tab.c"
     break;
 
   case 31:
-#line 520 "rules.y"
-             {(yyval.a) = newNum((yyvsp[0].flo));}
+#line 514 "rules.y"
+                     {(yyval.a) = newcmp((yyvsp[-1].fn),(yyvsp[-2].a),(yyvsp[0].a));}
 #line 2011 "rules.tab.c"
     break;
 
   case 32:
-#line 521 "rules.y"
-                {(yyval.a) = newString((yyvsp[0].str));}
+#line 515 "rules.y"
+                     {(yyval.a) = (yyvsp[-1].a);}
 #line 2017 "rules.tab.c"
     break;
 
   case 33:
-#line 522 "rules.y"
-                          {(yyval.a) = newast('^', (yyvsp[-2].a), (yyvsp[0].a));}
+#line 516 "rules.y"
+                           {(yyval.a) = newast('M',(yyvsp[0].a),NULL);}
 #line 2023 "rules.tab.c"
     break;
 
   case 34:
-#line 523 "rules.y"
-                          {(yyval.a) = newValorVal((yyvsp[0].str));}
+#line 517 "rules.y"
+             {(yyval.a) = newFloat((yyvsp[0].flo));}
 #line 2029 "rules.tab.c"
     break;
 
   case 35:
-#line 524 "rules.y"
-                        {(yyval.a) = newValorVal_a((yyvsp[-3].str),(yyvsp[-1].flo));}
+#line 518 "rules.y"
+                {(yyval.a) = newString((yyvsp[0].str));}
 #line 2035 "rules.tab.c"
     break;
 
   case 36:
-#line 529 "rules.y"
-              {(yyval.a) = newValorValS((yyvsp[0].str));}
+#line 519 "rules.y"
+                          {(yyval.a) = newast('^', (yyvsp[-2].a), (yyvsp[0].a));}
 #line 2041 "rules.tab.c"
     break;
 
   case 37:
-#line 530 "rules.y"
-                 {(yyval.a) = newString((yyvsp[0].str));}
+#line 520 "rules.y"
+                          {(yyval.a) = newValorVal((yyvsp[0].str));}
 #line 2047 "rules.tab.c"
     break;
 
+  case 38:
+#line 521 "rules.y"
+                        {(yyval.a) = newValorVal_a((yyvsp[-3].str),(yyvsp[-1].flo));}
+#line 2053 "rules.tab.c"
+    break;
 
-#line 2051 "rules.tab.c"
+  case 39:
+#line 526 "rules.y"
+              {(yyval.a) = newValorValS((yyvsp[0].str));}
+#line 2059 "rules.tab.c"
+    break;
+
+  case 40:
+#line 527 "rules.y"
+                 {(yyval.a) = newString((yyvsp[0].str));}
+#line 2065 "rules.tab.c"
+    break;
+
+
+#line 2069 "rules.tab.c"
 
       default: break;
     }
@@ -2279,7 +2297,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 532 "rules.y"
+#line 529 "rules.y"
 
 
 #include "lex.yy.c"

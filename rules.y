@@ -24,7 +24,8 @@
 	typedef struct conteudo{
 		int intergerValue;
 		double doubleValue;
-		char stringValue;
+		char stringValue[50];
+		int booleanValue;
 	}Conteudo;
 	
 	VARIAVEL *insert_vari_int(VARIAVEL*l,char n[]){
@@ -119,7 +120,7 @@ typedef struct symasgn { /*Estrutura para um nó de atribuição. Para atrubior 
 VARIAVEL *listOfVariavel; /*Variáveis*/
 VARIAVEL *aux;
 
-Ast * newast(int nodetype, Ast *l, Ast *r){ /*Função para criar um nó*/
+Ast * newAst(int nodetype, Ast *l, Ast *r){ /*Função para criar um nó*/
 
 	Ast *a = (Ast*) malloc(sizeof(Ast));
 	if(!a) {
@@ -155,8 +156,18 @@ Ast * newarray(int nodetype, char nome[50], int tam) {			/*Função de que cria 
 	return (Ast*)a;
 }	
 
+Ast * newInterger(int value) { /*Função de que cria uma nova string*/
+	IntVal *a = (IntVal*) malloc(sizeof(IntVal));
+	if(!a) {
+		printf("out of space");
+		exit(0);
+	}
+	a->nodetype = 'R';
+	a->value = value;
+	return (Ast*)a;
+}
 	
-Ast * newNum(double value) {			/*Função de que cria um novo número*/
+Ast * newFloat(double value) {			/*Função de que cria um novo número*/
 	FlwVal *a = (FlwVal*) malloc(sizeof(FlwVal));
 	if(!a) {
 		printf("out of space");
@@ -175,17 +186,6 @@ Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 	}
 	a->nodetype = 'J';
 	strcpy(a->value, str);
-	return (Ast*)a;
-}
-
-Ast * newInterger(int value) { /*Função de que cria uma nova string*/
-	IntVal *a = (IntVal*) malloc(sizeof(IntVal));
-	if(!a) {
-		printf("out of space");
-		exit(0);
-	}
-	a->nodetype = 'R';
-	a->value = value;
 	return (Ast*)a;
 }
 
@@ -248,7 +248,7 @@ Ast * newValorVal(char name[]) { /*Função que recupera o nome/referência de u
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'N';
+	a->nodetype = 'V';
 	strcpy(a->name,name);
 	return (Ast*)a;
 }
@@ -259,7 +259,7 @@ Ast * newValorVal_a(char name[], int indice) { /*Função que recupera o nome/re
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'n';
+	a->nodetype = 'v';
 	strcpy(a->name,name);
 	a->size = indice;
 	
@@ -279,32 +279,15 @@ Ast * newValorValS(char name[50]) { /*Função que recupera o nome/referência d
 	
 }
 
-	
-char * eval2(Ast *a) { /*Função que executa operações a partir de um nó*/
-		VARIAVEL *aux1;
-		char *v2;
-		
-			switch(a->nodetype) {
-			
-			case 'Q':
-				aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-				return aux1->valueString;
-				break;
-
-			default: printf("internal error: bad node %c\n", a->nodetype);
-					break;
-		}
-		
-	return v2;
-	}
-
 
 Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*/
 	Conteudo * cont; //= (Conteudo *)malloc(sizeof(Conteudo));
 	Conteudo * cont_aux; // = (Conteudo *)malloc(sizeof(Conteudo));
-	double valueDouble; 
-	char v1[50];
-	char *v2;
+	
+	int intWork;
+	double doubleWork;
+	char * stringWork;
+
 	VARIAVEL * aux1;
 	if(!a) {
 		printf("internal error, null eval");
@@ -314,12 +297,12 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 	switch(a->nodetype) {
 		case 'K': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
 		//case 'J': 
-		case 'N': 
+		case 'V': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 			cont->doubleValue = aux1->valueDouble;
 			break;
 		
-		case 'n':
+		case 'v':
 			
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 			valueDouble = aux1->vector[((NameVari *)a)->size];
@@ -331,12 +314,12 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case '/': cont->doubleValue = eval(a->l)->doubleValue / eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
 		case 'M': cont->doubleValue = -eval(a->l)->doubleValue; break;				/*Operações, número negativo*/
 	
-		case '1': cont->doubleValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
-		case '2': cont->doubleValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
-		case '3': cont->doubleValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
-		case '4': cont->doubleValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
-		case '5': cont->doubleValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
-		case '6': cont->doubleValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '1': cont->booleanValue = (eval(a->l)->doubleValue >  eval(a->r)->doubleValue)? 1 : 0; break;	/*Operações lógicas. "árv esq   >   árv dir"  Se verdade 1, falso 0*/
+		case '2': cont->booleanValue = (eval(a->l)->doubleValue <  eval(a->r)->doubleValue)? 1 : 0; break;
+		case '3': cont->booleanValue = (eval(a->l)->doubleValue != eval(a->r)->doubleValue)? 1 : 0; break;
+		case '4': cont->booleanValue = (eval(a->l)->doubleValue == eval(a->r)->doubleValue)? 1 : 0; break;
+		case '5': cont->booleanValue = (eval(a->l)->doubleValue >= eval(a->r)->doubleValue)? 1 : 0; break;
+		case '6': cont->booleanValue = (eval(a->l)->doubleValue <= eval(a->r)->doubleValue)? 1 : 0; break;
 		
 		case '=':
 			cont_aux = eval(((Symasgn *)a)->v); /*Recupera o valueDouble*/
@@ -348,15 +331,15 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 			}
 			if(aux->nodetype == 2){ //lembrar de verificar os demais tipos
 				aux->valueDouble = cont_aux->doubleValue;
-			}/*
+			}
 			if(aux->nodetype == 3){
-				strcpy(aux->valueString, "teste");
-			}*/
+				strcpy(aux->valueString, cont->stringValue);
+			}
 			else
 				aux->vector[((Symasgn *)a)->pos] = cont_aux->doubleValue; //inserção no vetor
 			break;
 		
-		case 'I':						/*CASO IF*/
+		case 'E':						/*CASO IF*/
 			if (eval(((Flow *)a)->cond)->doubleValue != 0) {	/*executa a condição / teste*/
 				if (((Flow *)a)->tl)		/*Se existir árvore*/
 					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue; /*Verdade*/
@@ -382,45 +365,53 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case '^':	cont->doubleValue = pow(eval(a->l)->doubleValue, eval(a->r)->doubleValue); 
 					break; //carlos
 		
-		case 'L':	eval(a->l)->doubleValue;
+		case 'B':	eval(a->l)->doubleValue;
 					cont->doubleValue = eval(a->r)->doubleValue; break; /*Lista de operções em um bloco IF/ELSE/WHILE. Assim o analisador não se perde entre os blocos*/
 		
-		//Impreme uma double
-		case 'P': 	cont->doubleValue = eval(a->l)->doubleValue;		/*Recupera um valueDouble*/
+		/*
+			Impressão de tipos
+		*/
+		case 'N': 	cont->doubleValue = eval(a->l)->doubleValue;			/*Recupera um valueDouble*/
 					printf ("%.2f\n", cont->doubleValue);
-					break;  			/*Função que imprime um valueDouble*/
+					break;  			
 		
-		case 'X': 	cont->intergerValue = eval(a->l)->intergerValue;		/*Recupera um valueDouble*/
+		case 'L': 	cont->intergerValue = eval(a->l)->intergerValue;		/*Recupera um valueDouble*/
 					printf ("%i\n", cont->intergerValue);
-					break;  
-		// Impreme um a string
-		case 'Y':	
-					v2 = eval2(a->l);		/*Recupera um valueDouble STR*/
-					printf ("%s\n",v2); break;  /*Função que imprime um valueDouble (string)*/
-					break;
-
-		case 'S': 	scanf("%lf", &valueDouble);
-					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-					aux1->valueDouble = valueDouble;
 					break;
 		
-		case 'T': 	scanf("%s", v1);
+		case 'T': 	strcpy(cont->stringValue, eval(a->l)->stringValue);		/*Recupera um valueDouble*/
+					printf ("%s\n", cont->stringValue);
+					break;  			
+		
+//---------------------
+		case 'n': 	scanf("%d", &intWork);
 					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-					strcpy(aux1->valueString,v1);
+					aux1->valueInteger = intWork;
+					break;
+		
+		case 'l': 	scanf("%lf", &doubleWork);
+					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
+					aux1->valueDouble = intWork;
+					break;
+		
+		case 't': 	scanf("%s", &stringWork);
+					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
+					strcpy(aux1->valueString, stringWork);
 					break;			
 		
 		case 'Q': 	
 					printf("%s\n", ((StrVal *)a->l)->value);
 					break;
 					
-		case 'V': 	listOfVariavel = insert_vari_float(listOfVariavel,((NameVari*)a)->name);
+		case 'I': 	listOfVariavel = insert_vari_int(listOfVariavel,((NameVari*)a)->name);
 					break;
-		case 'E': 
-					listOfVariavel = insert_vari_int(listOfVariavel,((NameVari*)a)->name);
+
+		case 'F': 	listOfVariavel = insert_vari_float(listOfVariavel,((NameVari*)a)->name);
 					break;
-		case 'G': 
-					listOfVariavel = insert_vari_str(listOfVariavel,((NameVari*)a)->name);
+
+		case 'S': 	listOfVariavel = insert_vari_str(listOfVariavel,((NameVari*)a)->name);
 					break;
+
 		case 'A':	
 					listOfVariavel = insert_array(listOfVariavel,((NameVari*)a)->name,((NameVari*)a)->size);
 					break;
@@ -476,50 +467,55 @@ prog: stmt 		{eval($1);}  /*Inicia e execução da árvore de derivação*/
 /*Funções para análise sintática e criação dos nós na AST*/	
 /*Verifique q nenhuma operação é realizada na ação semântica, apenas são criados nós na árvore de derivação com suas respectivas operações*/
 	
-stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
-	| IF '(' exp ')' '{' list '}' ELSE '{' list '}' {$$ = newflow('I', $3, $6, $10);}
+stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('E', $3, $6, NULL);}
+	| IF '(' exp ')' '{' list '}' ELSE '{' list '}' {$$ = newflow('E', $3, $6, $10);}
 	| WHILE '(' exp ')' '{' list '}' {$$ = newflow('W', $3, $6, NULL);}
 
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
-	| DECL VARS ':' TYPEINT	 %prec DECLPREC { $$ = newVari('E',$2);} //Variáreis unicas
-	| DECL VARS ':' TYPEFLW	 %prec DECLPREC { $$ = newVari('V',$2);}
-	| DECL VARS ':' TYPESTR	 %prec DECLPREC { $$ = newVari('G',$2);}
+	| DECL VARS ':' TYPEINT	 %prec DECLPREC { $$ = newVari('I',$2);} //Variáreis unicas
+	| DECL VARS ':' TYPEFLW	 %prec DECLPREC { $$ = newVari('F',$2);}
+	| DECL VARS ':' TYPESTR	 %prec DECLPREC { $$ = newVari('S',$2);}
 
 	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
-	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
-	| PRINT '(' exp SEPARADOR TYPEINT ')' 	{$$ = newast('X',$3,NULL);}
-	| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
-	//| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}
-	| PRINTT '(' exp1 ')' 	{$$ = newast('Y',$3,NULL);}
-	| SCAN '('VARS')'		{$$ = newVari('S',$3);}
+	| PRINTS '(' exp1 ')' { $$ = newAst('Q',$3,NULL);}
+	
+	| PRINT '(' exp SEPARADOR TYPEINT ')' 	{$$ = newAst('N',$3,NULL);} //Impressão
+	| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newAst('L',$3,NULL);}
+	| PRINT '(' exp SEPARADOR TYPESTR ')'	{$$ = newAst('T',$3,NULL);}
+
+	| SCAN '('VARS SEPARADOR TYPEINT')'		{$$ = newVari('n',$3);}
+	| SCAN '('VARS SEPARADOR TYPEFLW')'		{$$ = newVari('l',$3);}
+	| SCAN '('VARS SEPARADOR TYPESTR')'		{$$ = newVari('t',$3);}
+
+	| PRINTT '(' exp1 ')' 	{$$ = newAst('Y',$3,NULL);}
 	| SCANS '('VARS')'		{$$ = newVari('T',$3);}
 	| VARS INGREMENTO
 		{
-			$$ = newasgn($1, newast('+', newValorVal($1), newNum(1.0))); 
+			$$ = newasgn($1, newAst('+', newValorVal($1), newFloat(1.0))); 
 		}
 	| VARS DECREMENTO
 		{
-			$$ = newasgn($1, newast('-', newValorVal($1), newNum(1.0))); 
+			$$ = newasgn($1, newAst('-', newValorVal($1), newFloat(1.0))); 
 		}
 	;
 
 list: stmt {$$ = $1;}
-		| list stmt { $$ = newast('L', $1, $2);	}
+		| list stmt { $$ = newAst('B', $1, $2);	}
 		;
 	
 exp: 
-	 exp '+' exp {$$ = newast('+',$1,$3);}		/*Expressões matemáticas*/
-	|exp '-' exp {$$ = newast('-',$1,$3);}
-	|exp '*' exp {$$ = newast('*',$1,$3);}
-	|exp '/' exp {$$ = newast('/',$1,$3);}
+	 exp '+' exp {$$ = newAst('+',$1,$3);}		/*Expressões matemáticas*/
+	|exp '-' exp {$$ = newAst('-',$1,$3);}
+	|exp '*' exp {$$ = newAst('*',$1,$3);}
+	|exp '/' exp {$$ = newAst('/',$1,$3);}
 	|exp CMP exp {$$ = newcmp($2,$1,$3);}		/*Testes condicionais*/
 	|'(' exp ')' {$$ = $2;}
-	|'-' exp %prec NEG {$$ = newast('M',$2,NULL);}
-	|NUM {$$ = newNum($1);}						/*token de um número*/
+	|'-' exp %prec NEG {$$ = newAst('M',$2,NULL);}
+	|NUM {$$ = newFloat($1);}						/*token de um número*/
 	|STRING {$$ = newString($1);}						/*token de um número*/
-	|exp EXPONENT exp {$$ = newast('^', $1, $3);}
+	|exp EXPONENT exp {$$ = newAst('^', $1, $3);}
 	|VARS 	%prec VET {$$ = newValorVal($1);}		/*token de uma variável*/
 	|VARS '['NUM']' {$$ = newValorVal_a($1,$3);}				/*token de uma variável*/
 		
