@@ -4,7 +4,8 @@
 
 COMMENT ("---"("\n"|.*)*"---")|#.*
 SEPARADOR ","
-NUM [0-9]+\.?[0-9]*
+FLW [0-9]+.[0-9]+
+INT [0-9]+
 VARS [a-z]+[0-9]*
 START "START_PROG"
 END "END_PROG"
@@ -61,9 +62,14 @@ TYPESTR "Str"
 	return STRING;
 	}
 
-{NUM} {
+{FLW} {
 	yylval.flo = atof(yytext);
-	return NUM;
+	return FLW;
+	}
+
+{INT} {
+	yylval.flo = atoi(yytext);
+	return INT;
 	}
 
 

@@ -81,26 +81,26 @@ typedef struct ast { /*Estrutura de um nó*/
 	struct ast *r; /*Direita*/
 }Ast; 
 
+typedef struct intVal { /*Estrutura de um número*/
+	int nodetype;
+	double value;
+}IntVal;
+
 typedef struct flwVal { /*Estrutura de um número*/
 	int nodetype;
 	double value;
 }FlwVal;
 
-typedef struct intVal { /*Estrutura de um número*/
+typedef struct strVal { /*Estrutura de a string*/
 	int nodetype;
-	double value;
-}IntVal;
+	char value[50];
+}StrVal;
 
 typedef struct nameVari { /*Estrutura de um nome de variável, nesse exemplo uma variável é um número no vetor name[26]*/
 	int nodetype;
 	char name[50];
 	int size;
 }NameVari;
-
-typedef struct strVal { /*Estrutura de a string*/
-	int nodetype;
-	char value[50];
-}StrVal;
 	
 typedef struct flow { /*Estrutura de um desvio (if/else/while)*/
 	int nodetype;
@@ -162,7 +162,7 @@ Ast * newInterger(int value) { /*Função de que cria uma nova string*/
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'R';
+	a->nodetype = 'i';
 	a->value = value;
 	return (Ast*)a;
 }
@@ -173,7 +173,7 @@ Ast * newFloat(double value) {			/*Função de que cria um novo número*/
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'K';
+	a->nodetype = 'f';
 	a->value = value;
 	return (Ast*)a;
 }	
@@ -184,7 +184,7 @@ Ast * newString(char str[]) { /*Função de que cria uma nova string*/
 		printf("out of space");
 		exit(0);
 	}
-	a->nodetype = 'J';
+	a->nodetype = 's';
 	strcpy(a->value, str);
 	return (Ast*)a;
 }
@@ -286,7 +286,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 	
 	int intWork;
 	double doubleWork;
-	char * stringWork;
+	char stringWork[100];
 
 	VARIAVEL * aux1;
 	if(!a) {
@@ -295,7 +295,9 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		return cont;
 	}
 	switch(a->nodetype) {
-		case 'K': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
+		case 'i': cont->intergerValue = ((IntVal *)a)->value; break; 	/*Recupera um número*/
+		case 'f': cont->doubleValue = ((FlwVal *)a)->value; break; 	/*Recupera um número*/
+		case 's': strcpy(cont->stringValue,((StrVal *)a)->value); break; 	/*Recupera um número*/
 		//case 'J': 
 		case 'V': 
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
@@ -305,7 +307,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case 'v':
 			
 			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-			valueDouble = aux1->vector[((NameVari *)a)->size];
+			doubleWork = aux1->vector[((NameVari *)a)->size];
 			break;
 		
 		case '+': cont->doubleValue = eval(a->l)->doubleValue + eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
@@ -344,7 +346,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 				if (((Flow *)a)->tl)		/*Se existir árvore*/
 					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue; /*Verdade*/
 				else
-					valueDouble = 0.0;
+					cont->doubleValue = 0.0;
 			} else {
 				if( ((Flow *)a)->el) {
 					cont->doubleValue = eval(((Flow *)a)->el)->doubleValue; /*Falso*/
@@ -394,7 +396,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 					aux1->valueDouble = intWork;
 					break;
 		
-		case 't': 	scanf("%s", &stringWork);
+		case 't': 	scanf("%s", stringWork);
 					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
 					strcpy(aux1->valueString, stringWork);
 					break;			
@@ -433,13 +435,15 @@ void yyerror (char *name){
 
 %union{
 	float flo;
+	int integer;
 	int fn;
 	int inter;
 	char str[50];
 	Ast *a;
 	}
 
-%token <flo>NUM
+%token <flo>FLW
+%token <integer>INT
 %token <str>VARS
 %token <str>STRING
 %token START END IF ELSE WHILE PRINT PRINTS DECL SCAN PRINTT SCANS INGREMENTO DECREMENTO
@@ -472,13 +476,13 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('E', $3, $6, NULL);}
 	| WHILE '(' exp ')' '{' list '}' {$$ = newflow('W', $3, $6, NULL);}
 
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
-	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
+	| VARS '['INT']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
 	| DECL VARS ':' TYPEINT	 %prec DECLPREC { $$ = newVari('I',$2);} //Variáreis unicas
 	| DECL VARS ':' TYPEFLW	 %prec DECLPREC { $$ = newVari('F',$2);}
 	| DECL VARS ':' TYPESTR	 %prec DECLPREC { $$ = newVari('S',$2);}
 
-	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
+	| DECL VARS '['INT']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newAst('Q',$3,NULL);}
 	
 	| PRINT '(' exp SEPARADOR TYPEINT ')' 	{$$ = newAst('N',$3,NULL);} //Impressão
@@ -513,11 +517,12 @@ exp:
 	|exp CMP exp {$$ = newcmp($2,$1,$3);}		/*Testes condicionais*/
 	|'(' exp ')' {$$ = $2;}
 	|'-' exp %prec NEG {$$ = newAst('M',$2,NULL);}
-	|NUM {$$ = newFloat($1);}						/*token de um número*/
+	|INT {$$ = newInterger($1);}						/*token de um número*/
+	|FLW {$$ = newFloat($1);}						/*token de um número*/
 	|STRING {$$ = newString($1);}						/*token de um número*/
 	|exp EXPONENT exp {$$ = newAst('^', $1, $3);}
 	|VARS 	%prec VET {$$ = newValorVal($1);}		/*token de uma variável*/
-	|VARS '['NUM']' {$$ = newValorVal_a($1,$3);}				/*token de uma variável*/
+	|VARS '['INT']' {$$ = newValorVal_a($1,$3);}				/*token de uma variável*/
 		
 	;
 
