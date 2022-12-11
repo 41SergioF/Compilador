@@ -483,9 +483,9 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| VARS '=' exp %prec VARPREC { $$ = newasgn($1,$3);}
 	| VARS '['NUM']' '=' exp {$$ = newasgn_a($1,$6,$3);}
 
-	| DECL TYPEINT VARS	 %prec DECLPREC { $$ = newVari('E',$3);} //Variáreis unicas
-	| DECL TYPEFLW VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
-	| DECL TYPESTR VARS	 %prec DECLPREC { $$ = newVari('G',$3);}
+	| DECL VARS ':' TYPEINT	 %prec DECLPREC { $$ = newVari('E',$2);} //Variáreis unicas
+	| DECL VARS ':' TYPEFLW	 %prec DECLPREC { $$ = newVari('V',$2);}
+	| DECL VARS ':' TYPESTR	 %prec DECLPREC { $$ = newVari('G',$2);}
 
 	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
