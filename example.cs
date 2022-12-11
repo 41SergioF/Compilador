@@ -1,10 +1,14 @@
-START
+START_PROG
 
-	var Int a
-	var Flw b
-	var Str c
+	var Flw variaveis[3]
 
-	b = 10
-	Out(b, Flw)
+	Outs(">> Vamos resolver a formula de Baskara <<")
 
-END
+	Outs("Entre com o valor de 'A':")
+	Imp(variaveis[0])
+	Outs("Entre com o valor de 'B':")
+	Imp(variaveis[1])
+	Outs("Entre com o valor de 'C':")
+	Imp(variaveis[3])
+
+END_PROG

@@ -471,7 +471,7 @@ stmt: IF '(' exp ')' '{' list '}' %prec IFX {$$ = newflow('I', $3, $6, NULL);}
 	| DECL TYPEFLW VARS	 %prec DECLPREC { $$ = newVari('V',$3);}
 	| DECL TYPESTR VARS	 %prec DECLPREC { $$ = newVari('G',$3);}
 
-	| DECL VARS '['NUM']'	{ $$ = newarray('A',$2,$4);}
+	| DECL TYPEFLW VARS '['NUM']'	{ $$ = newarray('A',$3,$5);}
 	| PRINTS '(' exp1 ')' { $$ = newast('Q',$3,NULL);}
 	| PRINT '(' exp SEPARADOR TYPEINT ')' 	{$$ = newast('X',$3,NULL);}
 	| PRINT '(' exp SEPARADOR TYPEFLW ')' 	{$$ = newast('P',$3,NULL);}

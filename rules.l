@@ -6,8 +6,8 @@ COMMENT ("---"("\n"|.*)*"---")|#.*
 SEPARADOR ","
 NUM [0-9]+\.?[0-9]*
 VARS [a-z]+[0-9]*
-START "START"
-END "END"
+START "START_PROG"
+END "END_PROG"
 IF "if"
 ELSE "else"
 WHILE "while"
