@@ -58,7 +58,7 @@
 		strcpy(new->name,n);
 		new->vector = (double*)malloc(tamanho * sizeof(double));
 		new->prox = l;
-		new->nodetype = 3;
+		new->nodetype = 4;
 		return new;
 	}
 	
@@ -281,14 +281,15 @@ Ast * newValorValS(char name[50]) { /*Função que recupera o nome/referência d
 
 
 Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*/
-	Conteudo * cont; //= (Conteudo *)malloc(sizeof(Conteudo));
-	Conteudo * cont_aux; // = (Conteudo *)malloc(sizeof(Conteudo));
+	Conteudo * cont = (Conteudo *)malloc(sizeof(Conteudo));
+	Conteudo * cont_aux = (Conteudo *)malloc(sizeof(Conteudo));
 	
 	int intWork;
 	double doubleWork;
 	char stringWork[100];
 
-	VARIAVEL * aux1;
+	VARIAVEL * variavel_auxiliar;
+
 	if(!a) {
 		printf("internal error, null eval");
 		cont->doubleValue = 0.0;
@@ -300,14 +301,13 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		case 's': strcpy(cont->stringValue,((StrVal *)a)->value); break; 	/*Recupera um número*/
 		//case 'J': 
 		case 'V': 
-			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-			cont->doubleValue = aux1->valueDouble;
+			variavel_auxiliar = srch(listOfVariavel,((NameVari *)a)->name);
+			cont->doubleValue = variavel_auxiliar->valueDouble;
 			break;
 		
 		case 'v':
-			
-			aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-			doubleWork = aux1->vector[((NameVari *)a)->size];
+			variavel_auxiliar = srch(listOfVariavel,((NameVari *)a)->name);
+			doubleWork = variavel_auxiliar->vector[((NameVari *)a)->size];
 			break;
 		
 		case '+': cont->doubleValue = eval(a->l)->doubleValue + eval(a->r)->doubleValue; break;	/*Operações "árv esq   +   árv dir"*/
@@ -363,7 +363,7 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 					cont->doubleValue = eval(((Flow *)a)->tl)->doubleValue;
 					}
 			}
-		break;
+			break;
 		case '^':	cont->doubleValue = pow(eval(a->l)->doubleValue, eval(a->r)->doubleValue); 
 					break; //carlos
 		
@@ -387,18 +387,18 @@ Conteudo * eval(Ast *a) { /*Função que executa operações a partir de um nó*
 		
 //---------------------
 		case 'n': 	scanf("%d", &intWork);
-					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-					aux1->valueInteger = intWork;
+					variavel_auxiliar = srch(listOfVariavel,((NameVari *)a)->name);
+					variavel_auxiliar->valueInteger = intWork;
 					break;
 		
 		case 'l': 	scanf("%lf", &doubleWork);
-					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-					aux1->valueDouble = intWork;
+					variavel_auxiliar = srch(listOfVariavel,((NameVari *)a)->name);
+					variavel_auxiliar->valueDouble = intWork;
 					break;
 		
 		case 't': 	scanf("%s", stringWork);
-					aux1 = srch(listOfVariavel,((NameVari *)a)->name);
-					strcpy(aux1->valueString, stringWork);
+					variavel_auxiliar = srch(listOfVariavel,((NameVari *)a)->name);
+					strcpy(variavel_auxiliar->valueString, stringWork);
 					break;			
 		
 		case 'Q': 	
